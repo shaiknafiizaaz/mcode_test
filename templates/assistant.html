@@ -43,7 +43,7 @@ PHONE: 555-1234"></textarea>
     <p class="small mb">PNG, JPG, JPEG, WEBP or PDF. Requires Ollama with a vision model (e.g. qwen2.5vl). The vision model
     only <b>extracts wording</b> - it never decides M-Codes. Check status below.</p>
     <div class="row mb" id="ollama-status"><span class="small">Checking Ollama...</span></div>
-    <input type="file" id="image-file" accept=".png,.jpg,.jpeg,.webp,.bmp,.gif,.pdf">
+    <input type="file" id="image-file" accept="image/*,.pdf" capture="environment">
     <div class="row mt">
       <button class="btn" id="analyze-image">EXTRACT + ANALYZE</button>
     </div>

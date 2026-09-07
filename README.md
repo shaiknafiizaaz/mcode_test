@@ -154,3 +154,16 @@ are not changed. Ollama availability in the audit is a separate live local probe
 
 For isolated deployments or testing, `TENET_DB_PATH` selects a different SQLite
 file. The default remains `database/app.db`.
+
+## Vercel deployment
+
+The repository includes `vercel.json` and `api/index.py` for Vercel's Python
+runtime. Import the GitHub repository into Vercel and redeploy. The FastAPI
+assistant will be served at the deployment URL, while the original root
+`index.html` remains preserved in GitHub.
+
+Vercel serverless storage is temporary, so history and weak-code progress can
+reset between instances. Use an external database or the Docker/VPS option for
+persistent history. Vercel also cannot run local Ollama; text, manual analysis
+and the deterministic rule engine work without it, while image OCR requires a
+separately hosted vision endpoint.

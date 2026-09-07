@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>R+L M-Code Mock Test</title>
+<style>
+:root {
+  --bg:#f5f7fb; --card:#ffffff; --text:#1f2937; --muted:#6b7280;
+  --blue:#1f4e79; --blue2:#2f75b5; --green:#15803d; --greenbg:#ecfdf3;
+  --red:#b91c1c; --redbg:#fef2f2; --amber:#92400e; --amberbg:#fff7ed; --line:#dbe3ec;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter,Segoe UI,Arial,sans-serif;background:var(--bg);color:var(--text)}
+.app{max-width:860px;margin:auto;padding:18px}
+header{background:linear-gradient(135deg,var(--blue),var(--blue2));color:white;border-radius:18px;padding:24px;margin-bottom:16px}
+h1{margin:0 0 6px;font-size:28px} header p{margin:0;opacity:.92}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;margin-bottom:14px;box-shadow:0 4px 14px rgba(0,0,0,.04)}
+.controls{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+label{display:block;font-size:13px;font-weight:700;margin-bottom:6px}
+select,input,button{width:100%;font-size:16px;border-radius:10px;border:1px solid #cbd5e1;padding:12px}
+input{text-transform:uppercase}
+button{border:none;background:var(--blue);color:white;font-weight:700;cursor:pointer}
+button.secondary{background:#e9eef5;color:#1f2937}
+button:disabled{opacity:.5;cursor:not-allowed}
+.meta{display:flex;gap:12px;flex-wrap:wrap;font-size:14px;color:var(--muted);margin-bottom:12px}
+.badge{background:#edf4fb;color:var(--blue);padding:5px 10px;border-radius:999px;font-weight:700}
+.question{font-size:23px;line-height:1.35;font-weight:750;margin:16px 0}
+.feedback{display:none;padding:14px;border-radius:12px;margin-top:12px;font-weight:650}
+.feedback.correct{display:block;background:var(--greenbg);color:var(--green);border:1px solid #bbf7d0}
+.feedback.wrong{display:block;background:var(--redbg);color:var(--red);border:1px solid #fecaca}
+.answerline{margin-top:5px;color:#374151;font-weight:600}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.progress{height:10px;background:#e5e7eb;border-radius:999px;overflow:hidden;margin:12px 0}
+.progress>div{height:100%;background:var(--blue2);width:0%}
+.results{display:none}
+.scorebig{font-size:44px;font-weight:800;color:var(--blue)}
+.review-item{padding:12px 0;border-top:1px solid var(--line)}
+.good{color:var(--green)} .bad{color:var(--red)}
+.small{font-size:13px;color:var(--muted)}
+@media(max-width:640px){
+  .app{padding:10px} .controls,.actions{grid-template-columns:1fr}
+  h1{font-size:22px} .question{font-size:20px}
+}
+</style>
+</head>
+<body>
+<div class="app">
+<header>
+  <h1>R+L M-Code Mock Test</h1>
+  <p>Type the M-Code from the description. Immediate correct/wrong feedback. Retry as many times as you want.</p>
+</header>
+
+<div class="card" id="setup">
+  <div class="controls">
+    <div>
+      <label>Category</label>
+      <select id="category">
+        <option value="ALL">All Categories</option>
+        <option>Shipper</option><option>Consignee</option><option>Delivery Dates</option>
+        <option>Reference</option><option>Special Instructions</option>
+        <option>Appointment</option><option>Call Before</option>
+      </select>
+    </div>
+    <div>
+      <label>Questions per attempt</label>
+      <select id="count"><option>10</option><option selected>25</option><option>50</option><option value="ALL">All</option></select>
+    </div>
+  </div>
+  <div style="margin-top:12px"><button onclick="startQuiz()">Start Mock Test</button></div>
+</div>
+
+<div class="card" id="quiz" style="display:none">
+  <div class="meta">
+    <span class="badge" id="catBadge"></span>
+    <span id="qnum"></span>
+    <span id="score"></span>
+  </div>
+  <div class="progress"><div id="bar"></div></div>
+  <div class="small">Description / instruction:</div>
+  <div class="question" id="prompt"></div>
+  <label for="answer">Enter M-Code</label>
+  <input id="answer" autocomplete="off" autocapitalize="characters" placeholder="Example: MDOUBL" onkeydown="if(event.key==='Enter') submitAnswer()">
+  <div class="feedback" id="feedback"></div>
+  <div class="actions">
+    <button id="submitBtn" onclick="submitAnswer()">Check Answer</button>
+    <button class="secondary" id="nextBtn" onclick="nextQuestion()" disabled>Next Question</button>
+  </div>
+</div>
+
+<div class="card results" id="results">
+  <div class="scorebig" id="finalScore"></div>
+  <div id="summary"></div>
+  <div class="actions">
+    <button onclick="startQuiz()">Try Again</button>
+    <button class="secondary" onclick="retryWrong()">Retry Wrong Answers</button>
+  </div>
+  <h3>Review</h3>
+  <div id="review"></div>
+</div>
+</div>
+
+<script>
+const BANK = [{"prompt": "Shipper", "answer": "MSN", "category": "Shipper"}, {"prompt": "Shipper Reference #", "answer": "MSHRE", "category": "Shipper"}, {"prompt": "Shipper Order # / Our Order #", "answer": "MSORD", "category": "Shipper"}, {"prompt": "SID # / Shipper Identification #", "answer": "MSID", "category": "Shipper"}, {"prompt": "Shipper Phone #", "answer": "MSPH", "category": "Shipper"}, {"prompt": "Pickup #", "answer": "MPUN", "category": "Shipper"}, {"prompt": "Lift gate at pickup", "answer": "LIFTP", "category": "Shipper"}, {"prompt": "Residential pickup", "answer": "RPU", "category": "Shipper"}, {"prompt": "Inside pickup", "answer": "IPU", "category": "Shipper"}, {"prompt": "Shipment #", "answer": "MSHIP", "category": "Shipper"}, {"prompt": "Shipper Email ID", "answer": "MSEM", "category": "Shipper"}, {"prompt": "Any missing information in the consignee address", "answer": "MBR", "category": "Consignee"}, {"prompt": "ATTN / Contact Person Name", "answer": "MA", "category": "Consignee"}, {"prompt": "Store Number", "answer": "MSTO", "category": "Consignee"}, {"prompt": "Suite Number", "answer": "MSUI", "category": "Consignee"}, {"prompt": "Customer Order # / Your Order #", "answer": "MCORD", "category": "Consignee"}, {"prompt": "Customer #", "answer": "MCN", "category": "Consignee"}, {"prompt": "Customer Code # / CUST CODE #", "answer": "MCUST", "category": "Consignee"}, {"prompt": "Residential Delivery", "answer": "RC", "category": "Consignee"}, {"prompt": "Lift Gate Delivery", "answer": "MLIFT", "category": "Consignee"}, {"prompt": "Tailgate Delivery", "answer": "MTAIL", "category": "Consignee"}, {"prompt": "Must have pallet jack for delivery", "answer": "MPL", "category": "Consignee"}, {"prompt": "Must deliver on PUP", "answer": "MPUP", "category": "Consignee"}, {"prompt": "Receiving Hours / Delivery Hours", "answer": "MRH", "category": "Consignee"}, {"prompt": "Must deliver on straight truck / small truck / street truck / short truck / box truck", "answer": "MST", "category": "Consignee"}, {"prompt": "Purchase Order # / PO # / Customer Purchase Order #", "answer": "MPO", "category": "Consignee"}, {"prompt": "Customer ID # / CID #", "answer": "MCID", "category": "Consignee"}, {"prompt": "Customer Phone #", "answer": "MCPH", "category": "Consignee"}, {"prompt": "Customer Email ID", "answer": "MCEM", "category": "Consignee"}, {"prompt": "Delivery #", "answer": "MDEIN", "category": "Consignee"}, {"prompt": "Inside Delivery", "answer": "ID", "category": "Consignee"}, {"prompt": "Delivery Date", "answer": "MDELD", "category": "Delivery Dates"}, {"prompt": "Due Date", "answer": "MDUE", "category": "Delivery Dates"}, {"prompt": "Delivery Date Requested", "answer": "MDD", "category": "Delivery Dates"}, {"prompt": "Delivery By", "answer": "MDELBY", "category": "Delivery Dates"}, {"prompt": "Arrival Date", "answer": "MARRI", "category": "Delivery Dates"}, {"prompt": "Scheduled Delivery Date", "answer": "MSCHED", "category": "Delivery Dates"}, {"prompt": "Delivery Between Two Dates", "answer": "MDAYS", "category": "Delivery Dates"}, {"prompt": "Bill of Lading # / BOL #", "answer": "MBO", "category": "Reference"}, {"prompt": "Master BOL #", "answer": "MMCK", "category": "Reference"}, {"prompt": "Release #", "answer": "MEL", "category": "Reference"}, {"prompt": "Order Number", "answer": "MORD", "category": "Reference"}, {"prompt": "Sales Order #", "answer": "MSO", "category": "Reference"}, {"prompt": "Reference #", "answer": "MRF", "category": "Reference"}, {"prompt": "Load #", "answer": "ML", "category": "Reference"}, {"prompt": "Job #", "answer": "MJOB", "category": "Reference"}, {"prompt": "Packing List #", "answer": "MPKS", "category": "Reference"}, {"prompt": "Packing Slip #", "answer": "MPS", "category": "Reference"}, {"prompt": "Invoice #", "answer": "MNV", "category": "Reference"}, {"prompt": "General Ledger # / GL #", "answer": "MGL", "category": "Reference"}, {"prompt": "Serial #", "answer": "MSF", "category": "Reference"}, {"prompt": "Vendor #", "answer": "MVEND", "category": "Reference"}, {"prompt": "Pick Ticket #", "answer": "MPICKT", "category": "Reference"}, {"prompt": "WWE # / World Wide Express #", "answer": "MWWE", "category": "Reference"}, {"prompt": "Code #", "answer": "MCODE", "category": "Reference"}, {"prompt": "DUNS #", "answer": "MDUNS", "category": "Reference"}, {"prompt": "Quotation # / Quote #", "answer": "MQN", "category": "Reference"}, {"prompt": "Booking #", "answer": "MBK", "category": "Reference"}, {"prompt": "Return Authorization # / RA #", "answer": "MRA", "category": "Reference"}, {"prompt": "RGA #", "answer": "MRGAN", "category": "Reference"}, {"prompt": "Web PRO #", "answer": "MWR", "category": "Reference"}, {"prompt": "Manifest #", "answer": "MFEST", "category": "Reference"}, {"prompt": "Confirmation #", "answer": "MCONF", "category": "Reference"}, {"prompt": "Account #", "answer": "MACCT", "category": "Reference"}, {"prompt": "Document #", "answer": "MDOCC", "category": "Reference"}, {"prompt": "ME #", "answer": "MEE", "category": "Reference"}, {"prompt": "Ticket #", "answer": "MTKT", "category": "Reference"}, {"prompt": "Do not double stack / Do not stack / Stackable - No", "answer": "MDOUBL", "category": "Special Instructions"}, {"prompt": "Do not break down skids or pallets", "answer": "MDNB", "category": "Special Instructions"}, {"prompt": "Do not break shrink wrap", "answer": "MDNW", "category": "Special Instructions"}, {"prompt": "Do not top load", "answer": "MDONT", "category": "Special Instructions"}, {"prompt": "Do not use forklift", "answer": "MFORK", "category": "Special Instructions"}, {"prompt": "Do not deliver on pallet", "answer": "MDNDOP", "category": "Special Instructions"}, {"prompt": "Do not palletize from this freight", "answer": "MDNP", "category": "Special Instructions"}, {"prompt": "Do not remove from pallet", "answer": "MDONOT", "category": "Special Instructions"}, {"prompt": "Do not drop", "answer": "MDROPS", "category": "Special Instructions"}, {"prompt": "Shipper load and count", "answer": "MSLC", "category": "Special Instructions"}, {"prompt": "Dimensions", "answer": "MDIM", "category": "Special Instructions"}, {"prompt": "Any problems / questions / issue assistance", "answer": "MEGLA", "category": "Special Instructions"}, {"prompt": "Phone #", "answer": "MPHONE", "category": "Special Instructions"}, {"prompt": "Protect from freezing", "answer": "MPFF", "category": "Special Instructions"}, {"prompt": "Protect from weather", "answer": "MWEATH", "category": "Special Instructions"}, {"prompt": "Protect from moisture", "answer": "MMOIST", "category": "Special Instructions"}, {"prompt": "Keep the material dry", "answer": "MDRY", "category": "Special Instructions"}, {"prompt": "Keep away from heat", "answer": "MHEAT", "category": "Special Instructions"}, {"prompt": "AFF Dispatch #", "answer": "MAFPU", "category": "Special Instructions"}, {"prompt": "Fragile / Handle with care", "answer": "MPRA", "category": "Special Instructions"}, {"prompt": "Packing list / packing slip / pallet slip / documents / envelopes / certificates", "answer": "MPACK", "category": "Special Instructions"}, {"prompt": "Rush / Hot Rush / Hot Shipment / Urgent / ASAP", "answer": "MR", "category": "Special Instructions"}, {"prompt": "Call for appointment with phone number", "answer": "MCA", "category": "Appointment"}, {"prompt": "Call for appointment without phone number", "answer": "MCFA", "category": "Appointment"}, {"prompt": "Call for appointment 24 hrs before delivery", "answer": "MADV", "category": "Appointment"}, {"prompt": "Call for appointment 48 hrs before delivery", "answer": "M48", "category": "Appointment"}, {"prompt": "Call for appointment 72 hrs before delivery", "answer": "M72A", "category": "Appointment"}, {"prompt": "No appointment necessary", "answer": "MNDA", "category": "Appointment"}, {"prompt": "Call before delivery without phone number", "answer": "MBEFOR", "category": "Call Before"}, {"prompt": "Call before delivery with phone number", "answer": "MCALLB", "category": "Call Before"}, {"prompt": "Call 24 hrs before delivery with phone number", "answer": "M24", "category": "Call Before"}, {"prompt": "Call 48 hrs before delivery with phone number", "answer": "M48H", "category": "Call Before"}, {"prompt": "Call 1 hr before delivery", "answer": "M1HO", "category": "Call Before"}, {"prompt": "Call 2 hrs before delivery", "answer": "M2B4", "category": "Call Before"}, {"prompt": "Notify prior to delivery / Notification required / Notify consignee", "answer": "MNOTI", "category": "Call Before"}];
+let quiz=[], index=0, correct=0, answered=false, history=[];
+
+function shuffle(a) {
+  a=[...a];
+  for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}
+  return a;
+}
+function normalize(s){ return (s||'').trim().toUpperCase().replace(/\s+/g,''); }
+
+function startQuiz(custom=null){
+  const cat=document.getElementById('category').value;
+  let pool = custom || BANK.filter(q => cat==='ALL' || q.category===cat);
+  pool=shuffle(pool);
+  const count=document.getElementById('count').value;
+  if(!custom && count!=='ALL') pool=pool.slice(0,Math.min(parseInt(count),pool.length));
+  quiz=pool; index=0; correct=0; history=[];
+  document.getElementById('setup').style.display='none';
+  document.getElementById('results').style.display='none';
+  document.getElementById('quiz').style.display='block';
+  showQuestion();
+}
+function showQuestion(){
+  if(index>=quiz.length) return finish();
+  answered=false;
+  const q=quiz[index];
+  document.getElementById('prompt').textContent=q.prompt;
+  document.getElementById('catBadge').textContent=q.category;
+  document.getElementById('qnum').textContent=`Question ${index+1} of ${quiz.length}`;
+  document.getElementById('score').textContent=`Score: ${correct}`;
+  document.getElementById('bar').style.width=`${(index/quiz.length)*100}%`;
+  const input=document.getElementById('answer'); input.value=''; input.disabled=false; input.focus();
+  const fb=document.getElementById('feedback'); fb.className='feedback'; fb.innerHTML='';
+  document.getElementById('submitBtn').disabled=false;
+  document.getElementById('nextBtn').disabled=true;
+}
+function submitAnswer(){
+  if(answered) return;
+  const q=quiz[index], input=document.getElementById('answer');
+  const user=normalize(input.value), expected=normalize(q.answer);
+  if(!user){ input.focus(); return; }
+  const ok=user===expected;
+  answered=true;
+  if(ok) correct++;
+  history.push({...q,user:input.value.trim().toUpperCase(),ok});
+  const fb=document.getElementById('feedback');
+  if(ok){
+    fb.className='feedback correct';
+    fb.innerHTML=`✅ Correct — <b>${q.answer}</b>`;
+  } else {
+    fb.className='feedback wrong';
+    fb.innerHTML=`❌ Wrong<div class="answerline">Correct answer: <b>${q.answer}</b></div>`;
+  }
+  input.disabled=true;
+  document.getElementById('score').textContent=`Score: ${correct}`;
+  document.getElementById('submitBtn').disabled=true;
+  document.getElementById('nextBtn').disabled=false;
+}
+function nextQuestion(){
+  if(!answered) return;
+  index++;
+  showQuestion();
+}
+function finish(){
+  document.getElementById('quiz').style.display='none';
+  document.getElementById('results').style.display='block';
+  document.getElementById('bar').style.width='100%';
+  const pct=quiz.length?Math.round(correct/quiz.length*100):0;
+  document.getElementById('finalScore').textContent=`${correct} / ${quiz.length} (${pct}%)`;
+  const wrong=history.filter(x=>!x.ok).length;
+  document.getElementById('summary').innerHTML = wrong===0
+    ? '<p class="good"><b>Perfect score. Nice.</b></p>'
+    : `<p>You got <b>${wrong}</b> wrong. Use “Retry Wrong Answers” to drill only those codes.</p>`;
+  document.getElementById('review').innerHTML=history.map((x,i)=>`
+    <div class="review-item">
+      <div><b>${i+1}. ${escapeHtml(x.prompt)}</b></div>
+      <div class="${x.ok?'good':'bad'}">${x.ok?'✓':'✗'} Your answer: ${escapeHtml(x.user)}</div>
+      ${x.ok?'':`<div>Correct: <b>${x.answer}</b></div>`}
+      <div class="small">${x.category}</div>
+    </div>`).join('');
+}
+function retryWrong(){
+  const wrong=history.filter(x=>!x.ok).map(x=>({prompt:x.prompt,answer:x.answer,category:x.category}));
+  if(!wrong.length){ alert('No wrong answers to retry.'); return; }
+  startQuiz(wrong);
+}
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
+}
+</script>
+</body>
+</html>

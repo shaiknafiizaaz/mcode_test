@@ -16,12 +16,18 @@ from contextlib import contextmanager
 from typing import Any, Dict, Iterator, List, Optional
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-DB_PATH = os.environ.get('TENET_DB_PATH', os.path.join(BASE_DIR, "database", "app.db"))
+_default_db_path = (
+    os.path.join("/tmp", "tenet_app.db")
+    if os.environ.get("VERCEL")
+    else os.path.join(BASE_DIR, "database", "app.db")
+)
+DB_PATH = os.environ.get('TENET_DB_PATH', _default_db_path)
 
 
 @contextmanager
 def _conn() -> Iterator[sqlite3.Connection]:
     """Connection that commits on success and always closes."""
+    os.makedirs(os.path.dirname(os.path.abspath(DB_PATH)), exist_ok=True)
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     conn.execute("PRAGMA journal_mode=WAL")

@@ -426,6 +426,8 @@ def api_ollama_status():
         "models": status["models"],
         "vision_model": model,
         "error": status["error"],
+        "gemini_configured": bool(os.environ.get("GEMINI_API_KEY", "").strip()),
+        "gemini_model": os.environ.get("GEMINI_MODEL", ollama_client.DEFAULT_GEMINI_MODEL),
     }
 
 

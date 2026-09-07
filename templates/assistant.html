@@ -40,8 +40,7 @@ PHONE: 555-1234"></textarea>
 <div class="tab-panel" id="panel-image">
   <div class="card">
     <h2>UPLOAD BOL IMAGE / SCREENSHOT</h2>
-    <p class="small mb">PNG, JPG, JPEG, WEBP or PDF. Requires Ollama with a vision model (e.g. qwen2.5vl). The vision model
-    only <b>extracts wording</b> - it never decides M-Codes. Check status below.</p>
+    <p class="small mb">PNG, JPG, JPEG, WEBP or PDF. Gemini cloud vision is used when configured; Ollama is supported as a local fallback. The vision model only <b>extracts wording</b> - it never decides M-Codes.</p>
     <div class="row mb" id="ollama-status"><span class="small">Checking Ollama...</span></div>
     <input type="file" id="image-file" accept="image/*,.pdf" capture="environment">
     <div class="row mt">
@@ -112,10 +111,13 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // Ollama status
+  // Vision provider status
   const statusEl = document.getElementById("ollama-status");
   API.get("/api/ollama/status").then((s) => {
-    if (s.available && s.vision_model) {
+    if (s.gemini_configured) {
+      statusEl.innerHTML = `<span class="badge badge-green">GEMINI ONLINE</span>
+        <span class="small">Cloud vision model: ${esc(s.gemini_model)}</span>`;
+    } else if (s.available && s.vision_model) {
       statusEl.innerHTML = `<span class="badge badge-green">OLLAMA ONLINE</span>
         <span class="small">Vision model: ${esc(s.vision_model)}</span>`;
     } else if (s.available) {
@@ -123,7 +125,7 @@ document.addEventListener("DOMContentLoaded", () => {
         <span class="small">Run: ollama pull qwen2.5vl</span>`;
     } else {
       statusEl.innerHTML = `<span class="badge badge-gray">OLLAMA OFFLINE</span>
-        <span class="small">Image upload unavailable - paste text or use manual entry. Core M-Code system works fully offline.</span>`;
+        <span class="small">Configure Gemini for hosted camera extraction, or use Paste Text / Manual Entry. Core M-Code system works fully offline.</span>`;
     }
   }).catch(() => {
     statusEl.innerHTML = `<span class="badge badge-gray">OLLAMA OFFLINE</span>`;
@@ -136,7 +138,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const file = document.getElementById("image-file").files[0];
     if (!file) { alert("Choose an image or PDF first."); return; }
     const btn = document.getElementById("analyze-image");
-    btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Extracting locally...';
+      btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Extracting...';
     const hint = document.getElementById("image-hint");
     hint.textContent = "";
     try {

@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "source": "Freight payment terms. Only explicitly printed terms are treated as CONFIRMED. Nothing is inferred as certain.",
+  "explicit_terms": [
+    {"term": "PREPAID", "aliases": ["prepaid", "pre paid", "ppd", "freight prepaid", "prepay"], "note": "Freight charges are prepaid by the shipper."},
+    {"term": "COLLECT", "aliases": ["collect", "freight collect", "c.o.d.", "cod"], "note": "Freight charges are collected from the consignee at delivery."},
+    {"term": "THIRD PARTY", "aliases": ["third party", "3rd party", "third-party"], "note": "Freight charges billed to a third party. Requires a billing account reference - verify the account number with trainer."},
+    {"term": "FREE ASTRAY", "aliases": ["free astray", "freeastray"], "note": "No freight charge - freight found astray and returned. VERIFY authority for free astray with trainer."}
+  ],
+  "unresolved": "Any payment situation not explicitly listed above must be shown as VERIFY WITH TRAINER. Do not invent freight payment rules."
+}

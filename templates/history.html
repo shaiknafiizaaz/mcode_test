@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block title %}History - R+L BOL / Tenet Assistant{% endblock %}
+{% block content %}
+<h1 class="page-title">HISTORY</h1>
+<p class="page-sub">Past analyses stored locally in SQLite. Search, view, and delete. No cloud storage.</p>
+
+<div class="card">
+  <div class="row mb">
+    <input type="text" id="history-search" placeholder="Search analyses..." style="max-width:340px">
+    <button class="btn btn-sm" id="history-search-btn">SEARCH</button>
+    <button class="btn btn-danger btn-sm right" id="history-clear">CLEAR ALL</button>
+  </div>
+  <div id="history-list"><span class="small">Loading...</span></div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const listEl = document.getElementById("history-list");
+
+  async function load(search) {
+    listEl.innerHTML = '<span class="small">Loading...</span>';
+    try {
+      const url = "/api/history" + (search ? "?search=" + encodeURIComponent(search) : "");
+      const data = await API.get(url);
+      listEl.innerHTML = "";
+      if (!data.history.length) {
+        listEl.innerHTML = '<div class="info-box">No history yet. Run an analysis from the BOL Assistant or Manual Entry.</div>';
+        return;
+      }
+      data.history.forEach((h) => {
+        const codes = (h.suggested_codes || []).map((c) => `${c.code} ${c.value}`).join(", ") || "—";
+        const div = document.createElement("div");
+        div.className = "card";
+        div.innerHTML = `
+          <div class="row">
+            <b>${esc(h.created_at)}</b>
+            <span class="badge badge-blue">${esc(h.input_type || "paste")}</span>
+            <button class="btn btn-danger btn-sm right" data-del="${h.id}">DELETE</button>
+          </div>
+          <div class="small mono mt">${esc(h.input_preview || "")}</div>
+          <div class="small mt"><b>Codes:</b> ${esc(codes)}</div>
+          ${h.detected_fields && h.detected_fields.length ? `<div class="small"><b>Detected:</b> ${esc(h.detected_fields.join(", "))}</div>` : ""}
+          ${h.warnings && h.warnings.length ? `<div class="small"><b>Warnings:</b> ${esc(h.warnings.join(" | "))}</div>` : ""}`;
+        div.querySelector("[data-del]").addEventListener("click", async (e) => {
+          await API.post(`/api/history/${e.target.dataset.del}`, {}).catch(() => {});
+          load(document.getElementById("history-search").value);
+        });
+        listEl.appendChild(div);
+      });
+    } catch (e) {
+      listEl.innerHTML = `<div class="conflict-box">⚠ ${esc(e.message)}</div>`;
+    }
+  }
+
+  document.getElementById("history-search-btn").addEventListener("click", () => load(document.getElementById("history-search").value));
+  document.getElementById("history-search").addEventListener("keydown", (e) => { if (e.key === "Enter") load(e.target.value); });
+  document.getElementById("history-clear").addEventListener("click", async () => {
+    if (!confirm("Delete ALL history? This cannot be undone.")) return;
+    await fetch("/api/history/clear", { method: "POST" });
+    load("");
+  });
+
+  load("");
+});
+</script>
+{% endblock %}

@@ -1,0 +1,225 @@
+{% extends "base.html" %}
+{% block title %}BOL Assistant - R+L BOL / Tenet Assistant{% endblock %}
+{% block content %}
+<h1 class="page-title">BOL ASSISTANT</h1>
+<p class="page-sub">Paste BOL text or upload a screenshot. Extraction is local; all M-Codes come from the deterministic rule engine - never guessed.</p>
+
+<div class="tabs">
+  <div class="tab active" data-tab="paste">PASTE BOL TEXT</div>
+  <div class="tab" data-tab="image">UPLOAD IMAGE / SCREENSHOT</div>
+</div>
+
+<div class="tab-panel active" id="panel-paste">
+  <div class="card">
+    <h2>PASTE BOL TEXT</h2>
+    <textarea id="bol-text" class="mono" rows="16" placeholder="SHIP FROM:
+ABC INDUSTRIES
+
+SHIP TO:
+XYZ STORES
+ATTN: JOHN SMITH
+
+PO #: 458921
+
+HANDLING UNITS:
+2 SKIDS
+
+SPECIAL INSTRUCTIONS:
+DO NOT STACK
+LIFT GATE DELIVERY
+CALL 24 HRS BEFORE DELIVERY
+PHONE: 555-1234"></textarea>
+    <div class="row mt">
+      <button class="btn" id="analyze-text">ANALYZE BOL</button>
+      <span class="hint">The sample above is pre-loaded - you can paste over it.</span>
+    </div>
+  </div>
+  <div id="result-paste"></div>
+</div>
+
+<div class="tab-panel" id="panel-image">
+  <div class="card">
+    <h2>UPLOAD BOL IMAGE / SCREENSHOT</h2>
+    <p class="small mb">PNG, JPG, JPEG, WEBP or PDF. Requires Ollama with a vision model (e.g. qwen2.5vl). The vision model
+    only <b>extracts wording</b> - it never decides M-Codes. Check status below.</p>
+    <div class="row mb" id="ollama-status"><span class="small">Checking Ollama...</span></div>
+    <input type="file" id="image-file" accept=".png,.jpg,.jpeg,.webp,.bmp,.gif,.pdf">
+    <div class="row mt">
+      <button class="btn" id="analyze-image">EXTRACT + ANALYZE</button>
+    </div>
+    <div class="hint" id="image-hint"></div>
+  </div>
+
+  <div class="card hidden" id="correction-card">
+    <h2>REVIEW &amp; CORRECT EXTRACTED FIELDS <span class="badge badge-orange">VERIFY AGAINST ORIGINAL BOL</span></h2>
+    <p class="small">Low-confidence fields are marked. Correct the extracted wording here, then click
+    <b>ANALYZE CORRECTED</b> to run the deterministic M-Code engine on your corrected values.</p>
+    <div class="grid grid-2">
+      <div>
+        <label>Shipper</label><input type="text" id="f-shipper">
+        <label>Consignee</label><input type="text" id="f-consignee">
+        <label>ATTN (contact person)</label><input type="text" id="f-attn">
+        <label>Bill To</label><input type="text" id="f-bill_to">
+        <label>Freight Terms (payment)</label><input type="text" id="f-freight_terms">
+        <label>PRO Number</label><input type="text" id="f-pro_number">
+        <label>Handling Units</label><input type="text" id="f-handling_units">
+        <label>Pieces</label><input type="text" id="f-pieces">
+        <label>Weight</label><input type="text" id="f-weight">
+      </div>
+      <div>
+        <label>Description</label><textarea id="f-description" rows="3"></textarea>
+        <label>NMFC</label><input type="text" id="f-nmfc">
+        <label>Class</label><input type="text" id="f-class">
+        <label>References (one per line, e.g. "PO #: 458921")</label><textarea id="f-references" rows="3" class="mono"></textarea>
+        <label>Special Instructions (one per line)</label><textarea id="f-special_instructions" rows="4" class="mono"></textarea>
+        <label>Contacts (phone etc.)</label><textarea id="f-contact_information" rows="2"></textarea>
+      </div>
+    </div>
+    <div class="row mt">
+      <button class="btn btn-secondary" id="analyze-corrected">ANALYZE CORRECTED</button>
+      <button class="btn btn-ghost" id="analyze-as-is">ANALYZE AS-IS (skip correction)</button>
+    </div>
+  </div>
+  <div id="result-image"></div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  // Tabs
+  document.querySelectorAll(".tab").forEach((tab) => {
+    tab.addEventListener("click", () => {
+      document.querySelectorAll(".tab").forEach((t) => t.classList.remove("active"));
+      document.querySelectorAll(".tab-panel").forEach((p) => p.classList.remove("active"));
+      tab.classList.add("active");
+      document.getElementById("panel-" + tab.dataset.tab).classList.add("active");
+    });
+  });
+
+  document.getElementById("analyze-text").addEventListener("click", async () => {
+    const text = document.getElementById("bol-text").value;
+    if (!text.trim()) { alert("Paste some BOL text first."); return; }
+    const btn = document.getElementById("analyze-text");
+    btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Analyzing...';
+    try {
+      const result = await API.post("/api/analyze", { text, source_type: "paste" });
+      renderResult(result, document.getElementById("result-paste"));
+    } catch (e) {
+      document.getElementById("result-paste").innerHTML = `<div class="conflict-box">⚠ ${esc(e.message)}</div>`;
+    } finally {
+      btn.disabled = false; btn.textContent = "ANALYZE BOL";
+    }
+  });
+
+  // Ollama status
+  const statusEl = document.getElementById("ollama-status");
+  API.get("/api/ollama/status").then((s) => {
+    if (s.available && s.vision_model) {
+      statusEl.innerHTML = `<span class="badge badge-green">OLLAMA ONLINE</span>
+        <span class="small">Vision model: ${esc(s.vision_model)}</span>`;
+    } else if (s.available) {
+      statusEl.innerHTML = `<span class="badge badge-orange">OLLAMA ONLINE - NO VISION MODEL</span>
+        <span class="small">Run: ollama pull qwen2.5vl</span>`;
+    } else {
+      statusEl.innerHTML = `<span class="badge badge-gray">OLLAMA OFFLINE</span>
+        <span class="small">Image upload unavailable - paste text or use manual entry. Core M-Code system works fully offline.</span>`;
+    }
+  }).catch(() => {
+    statusEl.innerHTML = `<span class="badge badge-gray">OLLAMA OFFLINE</span>`;
+  });
+
+  // Image upload + extraction
+  let currentFields = null;
+  let currentResult = null;
+  document.getElementById("analyze-image").addEventListener("click", async () => {
+    const file = document.getElementById("image-file").files[0];
+    if (!file) { alert("Choose an image or PDF first."); return; }
+    const btn = document.getElementById("analyze-image");
+    btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Extracting locally...';
+    const hint = document.getElementById("image-hint");
+    hint.textContent = "";
+    try {
+      const fd = new FormData();
+      fd.append("file", file);
+      const resp = await fetch("/api/analyze/image", { method: "POST", body: fd });
+      const result = await resp.json().catch(() => ({}));
+      if (!resp.ok) throw new Error(result.detail || `HTTP ${resp.status}`);
+
+      currentFields = result.fields || {};
+      currentResult = result;
+      fillCorrectionForm(currentFields, result.confidence || {});
+      document.getElementById("correction-card").classList.remove("hidden");
+      // Per spec section 14: the user reviews/corrects extracted text
+      // BEFORE the M-Code engine is run. Results render on ANALYZE click.
+      document.getElementById("result-image").innerHTML = "";
+      hint.innerHTML = `<span class="badge badge-green">EXTRACTED</span> <span class="small">Vision model: ${esc(result.vision_model || "n/a")} - review the fields above, correct if needed, then run the engine.</span>`;
+    } catch (e) {
+      hint.innerHTML = `<span class="conflict-box">⚠ ${esc(e.message)}</span>`;
+    } finally {
+      btn.disabled = false; btn.textContent = "EXTRACT + ANALYZE";
+    }
+  });
+
+  function fillCorrectionForm(fields, confidence) {
+    const map = {
+      shipper: "f-shipper", consignee: "f-consignee", attn: "f-attn",
+      bill_to: "f-bill_to", freight_terms: "f-freight_terms", pro_number: "f-pro_number",
+      handling_units: "f-handling_units", pieces: "f-pieces", weight: "f-weight",
+      description: "f-description", nmfc: "f-nmfc", class: "f-class",
+      references: "f-references", special_instructions: "f-special_instructions",
+      contact_information: "f-contact_information",
+    };
+    Object.entries(map).forEach(([key, id]) => {
+      const el = document.getElementById(id);
+      el.value = fields[key] || "";
+    });
+    // Confidence markers
+    Object.entries(map).forEach(([key, id]) => {
+      const el = document.getElementById(id);
+      const conf = confidence[key] || "MEDIUM";
+      const mark = document.createElement("span");
+      mark.className = "small";
+      mark.style.marginLeft = "6px";
+      const color = conf === "HIGH" ? "var(--green)" : conf === "MEDIUM" ? "var(--orange)" : "var(--red)";
+      mark.style.color = color;
+      mark.textContent = conf + (conf === "LOW" ? " ⚠ VERIFY AGAINST ORIGINAL BOL" : "");
+      el.insertAdjacentElement("afterend", mark);
+    });
+  }
+
+  function collectFields() {
+    const ids = ["shipper","consignee","attn","bill_to","freight_terms","pro_number",
+      "handling_units","pieces","weight","description","nmfc","class","references",
+      "special_instructions","contact_information"];
+    const fields = {};
+    ids.forEach((k) => { fields[k] = document.getElementById("f-" + k).value; });
+    return fields;
+  }
+
+  async function analyzeFields(fields) {
+    const btn = document.getElementById("analyze-corrected");
+    btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Analyzing...';
+    try {
+      const result = await API.post("/api/analyze", { fields, source_type: "image" });
+      renderResult(result, document.getElementById("result-image"));
+    } catch (e) {
+      document.getElementById("result-image").innerHTML = `<div class="conflict-box">⚠ ${esc(e.message)}</div>`;
+    } finally {
+      btn.disabled = false; btn.textContent = "ANALYZE CORRECTED";
+    }
+  }
+
+  document.getElementById("analyze-corrected").addEventListener("click", () => analyzeFields(collectFields()));
+  document.getElementById("analyze-as-is").addEventListener("click", () => {
+    // Run the engine on the extraction exactly as the model returned it.
+    if (currentResult) {
+      renderResult(currentResult, document.getElementById("result-image"));
+      currentResult = null;
+    } else if (currentFields) {
+      analyzeFields(currentFields);
+    }
+  });
+});
+</script>
+{% endblock %}

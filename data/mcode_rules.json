@@ -1,0 +1,2128 @@
+{
+  "version": 1,
+  "source": "Authoritative R+L Carriers Tenet/EBS M-Code training dataset provided by the user. This file is the single source of truth for M-Codes. The rule engine NEVER invents codes not present here.",
+  "categories": {
+    "shipper": "Shipper / Pickup",
+    "consignee": "Consignee / Delivery",
+    "dates": "Delivery Dates",
+    "references": "Other Reference Numbers",
+    "special": "Special Instructions",
+    "appointment": "Appointment Codes",
+    "callbefore": "Call Before / Prior To Delivery"
+  },
+  "codes": [
+    {
+      "code": "MSN",
+      "meaning": "Shipper",
+      "category": "Shipper / Pickup",
+      "triggers": [
+        "shipper",
+        "ship from",
+        "shipper name"
+      ],
+      "example": "SHIP FROM: ABC MANUFACTURING",
+      "context": "shipper",
+      "display_rank": 3,
+      "plain_enabled": false,
+      "priority": 1,
+      "value_patterns": [
+        "\\bship\\s*from\\s*:?\\s*([A-Za-z0-9][A-Za-z0-9\\-/_. ]{0,})",
+        "\\bshipper\\s*:\\s*([A-Za-z0-9][A-Za-z0-9\\-/_. ]{0,})"
+      ],
+      "allow_text_value": true
+    },
+    {
+      "code": "MSHRE",
+      "meaning": "Shipper Reference",
+      "category": "Shipper / Pickup",
+      "triggers": [
+        "shipper reference",
+        "shipper ref"
+      ],
+      "example": "SHIPPER REF: 77521",
+      "context": "shipper",
+      "display_rank": 3,
+      "plain_enabled": false,
+      "priority": 1,
+      "value_patterns": [
+        "\\bshipper\\s+reference\\s*(?:#|no\\.?|number)?\\s*:?\\s*([A-Za-z0-9][A-Za-z0-9\\-/_. ]{0,})",
+        "\\bshipper\\s+ref\\s*(?:#|no\\.?|number)?\\s*:?\\s*([A-Za-z0-9][A-Za-z0-9\\-/_. ]{0,})"
+      ],
+      "allow_text_value": false
+    },
+    {
+      "code": "MSORD",
+      "meaning": "Shipper Order # / Our Order #",
+      "category": "Shipper / Pickup",
+      "triggers": [
+        "our order",
+        "shipper order"
+      ],
+      "example": "OUR ORDER #: 88412",
+      "context": "shipper",
+      "display_rank": 3,
+      "plain_enabled": false,
+      "priority": 1,
+      "value_patterns": [
+        "\\bour\\s+order\\s*(?:#|no\\.?|number)?\\s*:?\\s*([A-Za-z0-9][A-Za-z0-9\\-/_. ]{0,})",
+        "\\bshipper\\s+order\\s*(?:#|no\\.?|number)?\\s*:?\\s*([A-Za-z0-9][A-Za-z0-9\\-/_. ]{0,})"
+      ],
+      "allow_text_value": false
+    },
+    {
+      "code": "MSID",
+      "meaning": "SID # / Shipper Identification #",
+      "category": "Shipper / Pickup",
+      "triggers": [
+        "sid #",
+        "sid no",
+        "shipper identification"
+      ],
+      "example": "SID #: 1144-220",
+      "context": "shipper",
+      "display_rank": 3,
+      "plain_enabled": false,
+      "priority": 1,
+      "value_patterns": [
+        "\\bsid\\s*(?:#|no\\.?|number)?\\s*:?\\s*([A-Za-z0-9][A-Za-z0-9\\-/_. ]{0,})",
+        "\\bshipper\\s+identification\\s*(?:#|no\\.?|number)?\\s*:?\\s*([A-Za-z0-9][A-Za-z0-9\\-/_. ]{0,})"
+      ],
+      "allow_text_value": false
+    },
+    {
+      "code": "MSPH",
+      "meaning": "Shipper Phone #",
+      "category": "Shipper / Pickup",
+      "triggers": [
+        "shipper phone"
+      ],
+      "example": "SHIPPER PHONE: 555-0100",
+      "context": "shipper",
+      "display_rank": 3,
+      "plain_enabled": false,
+      "priority": 1,
+      "value_patterns": [
+        "\\bshipper\\s+phone\\s*(?:#|no\\.?|number)?\\s*:?\\s*([0-9+\\-(). ]{7,})"
+      ],
+      "allow_text_value": false
+    },
+    {
+      "code": "MPUN",
+      "meaning": "Pickup #",
+      "category": "Shipper / Pickup",
+      "triggers": [
+        "pickup #",
+        "pickup no",
+        "pickup number"
+      ],
+      "example": "PICKUP #: 88420",
+      "context": "shipper",
+      "display_rank": 3,
+      "plain_enabled": false,
+      "priority": 5,
+      "value_patterns": [
+        "\\bpickup\\s*(?:#|no\\.?|number)\\s*:?\\s*([A-Za-z0-9][A-Za-z0-9\\-/_. ]{0,})"
+      ],
+      "allow_text_value": false
+    },
+    {
+      "code": "LIFTP",
+      "meaning": "Lift Gate At Pickup",
+      "category": "Shipper / Pickup",
+      "triggers": [
+        "lift gate pickup",
+        "liftgate pickup"
+      ],
+      "example": "LIFT GATE PICKUP",
+      "context": "pickup",
+      "display_rank": 6,
+      "plain_enabled": false,
+      "priority": 3,
+      "service": {
+        "pattern": "lift\\s*gate|liftgate",
+        "directions": [
+          "pickup"
+        ]
+      },
+      "verify_conditions": [
+        "Direction inferred from section, or no explicit pickup/delivery direction."
+      ]
+    },
+    {
+      "code": "RPU",
+      "meaning": "Residential Pickup",
+      "category": "Shipper / Pickup",
+      "triggers": [
+        "residential pickup"
+      ],
+      "example": "RESIDENTIAL PICKUP",
+      "context": "pickup",
+      "display_rank": 6,
+      "plain_enabled": false,
+      "priority": 3,
+      "service": {
+        "pattern": "residential",
+        "directions": [
+          "pickup"
+        ]
+      },
+      "verify_conditions": [
+        "Direction inferred from section, or no explicit pickup/delivery direction."
+      ]
+    },
+    {
+      "code": "IPU",
+      "meaning": "Inside Pickup",
+      "category": "Shipper / Pickup",
+      "triggers": [
+        "inside pickup"
+      ],
+      "example": "INSIDE PICKUP",
+      "context": "pickup",
+      "display_rank": 6,
+      "plain_enabled": false,
+      "priority": 3,
+      "service": {
+        "pattern": "inside",
+        "directions": [
+          "pickup"
+        ]
+      },
+      "verify_conditions": [
+        "Direction inferred from section, or no explicit pickup/delivery direction."
+      ]
+    },
+    {
+      "code": "MSHIP",
+      "meaning": "Shipment #",
+      "category": "Shipper / Pickup",
+      "triggers": [
+        "shipment #",
+        "shipment no",
+        "shipment number"
+      ],
+      "example": "SHIPMENT #: 998877",
+      "context": "shipper",
+      "display_rank": 3,
+      "plain_enabled": false,
+      "priority": 5,
+      "value_patterns": [
+        "\\bshipment\\s*(?:#|no\\.?|number)?\\s*:?\\s*([A-Za-z0-9][A-Za-z0-9\\-/_. ]{0,})"
+      ],
+      "allow_text_value": false
+    },
+    {
+      "code": "MSEM",
+      "meaning": "Shipper Email ID",
+      "category": "Shipper / Pickup",
+      "triggers": [
+        "shipper email"
+      ],
+      "example": "SHIPPER EMAIL: orders@abc.com",
+      "context": "shipper",
+      "display_rank": 3,
+      "plain_enabled": false,
+      "priority": 1,
+      "value_patterns": [
+        "\\bshipper\\s+email\\s*(?:#|no\\.?|number)?\\s*:?\\s*([A-Za-z0-9._%+\\-@]{3,})"
+      ],
+      "allow_text_value": true
+    },
+    {
+      "code": "MBR",
+      "meaning": "Any Missing Information In Consignee Address",
+      "category": "Consignee / Delivery",
+      "triggers": [],
+      "example": "Consignee present but no city/state/zip detected",
+      "context": "consignee",
+      "logic": "auto",
+      "display_rank": 2,
+      "plain_enabled": false,
+      "priority": 4,
+      "role": "missing_address",
+      "verify_conditions": [
+        "Consignee street address present without ZIP/postal code."
+      ]
+    },
+    {
+      "code": "MA",
+      "meaning": "ATTN / Contact Person Name (actual person only)",
+      "category": "Consignee / Delivery",
+      "triggers": [
+        "attn",
+        "attention",
+        "contact"
+      ],
+      "example": "ATTN: JOHN SMITH",
+      "context": "consignee",
+      "logic": "person_name",
+      "display_rank": 2,
+      "plain_enabled": false,
+      "priority": 4,
+      "role": "attention",
+      "verify_conditions": [
+        "Department or phone supplied in place of an actual person name; do not emit a person code."
+      ]
+    },
+    {
+      "code": "MSTO",
+      "meaning": "Store Number",
+      "category": "Consignee / Delivery",
+      "triggers": [
+        "store #",
+        "store no",
+        "store number"
+      ],
+      "example": "STORE #: 1221",
+      "context": "consignee",
+      "display_rank": 4,
+      "plain_enabled": false,
+      "priority": 5,
+      "value_patterns": [
+        "\\bstore\\s*(?:#|no\\.?|number)?\\s*:?\\s*([A-Za-z0-9][A-Za-z0-9\\-/_. ]{0,})"
+      ],
+      "allow_text_value": false
+    },
+    {
+      "code": "MSUI",
+      "meaning": "Suite Number",
+      "category": "Consignee / Delivery",
+      "triggers": [
+        "suite #",
+        "suite no",
+        "suite number"
+      ],
+      "example": "SUITE #: 440",
+      "context": "consignee",
+      "display_rank": 4,
+      "plain_enabled": false,
+      "priority": 5,
+      "value_patterns": [
+        "\\bsuite\\s*(?:#|no\\.?|number)?\\s*:?\\s*([A-Za-z0-9][A-Za-z0-9\\-/_. ]{0,})"
+      ],
+      "allow_text_value": false
+    },
+    {
+      "code": "MCORD",
+      "meaning": "Customer Order # / Your Order #",
+      "category": "Consignee / Delivery",
+      "triggers": [
+        "your order",
+        "customer order"
+      ],
+      "example": "YOUR ORDER #: 5521",
+      "context": "consignee",
+      "display_rank": 4,
+      "plain_enabled": false,
+      "priority": 1,
+      "value_patterns": [
+        "\\byour\\s+order\\s*(?:#|no\\.?|number)?\\s*:?\\s*([A-Za-z0-9][A-Za-z0-9\\-/_. ]{0,})",
+        "\\bcustomer\\s+order\\s*(?:#|no\\.?|number)?\\s*:?\\s*([A-Za-z0-9][A-Za-z0-9\\-/_. ]{0,})"
+      ],
+      "allow_text_value": false
+    },
+    {
+      "code": "MCN",
+      "meaning": "Customer #",
+      "category": "Consignee / Delivery",
+      "triggers": [
+        "customer #",
+        "cust #",
+        "customer no",
+        "cust no"
+      ],
+      "example": "CUSTOMER #: 771",
+      "context": "consignee",
+      "display_rank": 4,
+      "plain_enabled": false,
+      "priority": 1,
+      "value_patterns": [
+        "\\bcust\\.?\\s*(?:#|no\\.?|number)?\\s*:?\\s*([A-Za-z0-9][A-Za-z0-9\\-/_. ]{0,})",
+        "\\bcustomer\\s*(?:#|no\\.?|number)?\\s*:?\\s*([A-Za-z0-9][A-Za-z0-9\\-/_. ]{0,})"
+      ],
+      "allow_text_value": false
+    },
+    {
+      "code": "MCUST",
+      "meaning": "Customer Code # / CUST CODE #",
+      "category": "Consignee / Delivery",
+      "triggers": [
+        "customer code",
+        "cust code"
+      ],
+      "example": "CUST CODE #: 22A",
+      "context": "consignee",
+      "display_rank": 4,
+      "plain_enabled": false,
+      "priority": 1,
+      "value_patterns": [
+        "\\bcust\\.?\\s+code\\s*(?:#|no\\.?|number)?\\s*:?\\s*([A-Za-z0-9][A-Za-z0-9\\-/_. ]{0,})",
+        "\\bcustomer\\s+code\\s*(?:#|no\\.?|number)?\\s*:?\\s*([A-Za-z0-9][A-Za-z0-9\\-/_. ]{0,})"
+      ],
+      "allow_text_value": false
+    },
+    {
+      "code": "RC",
+      "meaning": "Residential Delivery",
+      "category": "Consignee / Delivery",
+      "triggers": [
+        "residential delivery"
+      ],
+      "example": "RESIDENTIAL DELIVERY",
+      "context": "delivery",
+      "display_rank": 6,
+      "plain_enabled": false,
+      "priority": 3,
+      "service": {
+        "pattern": "residential",
+        "directions": [
+          "delivery"
+        ]
+      },
+      "verify_conditions": [
+        "Direction inferred from section, or no explicit pickup/delivery direction."
+      ]
+    },
+    {
+      "code": "MLIFT",
+      "meaning": "Lift Gate Delivery",
+      "category": "Consignee / Delivery",
+      "triggers": [
+        "lift gate delivery",
+        "liftgate delivery"
+      ],
+      "example": "LIFT GATE DELIVERY",
+      "context": "delivery",
+      "display_rank": 6,
+      "plain_enabled": false,
+      "priority": 3,
+      "service": {
+        "pattern": "lift\\s*gate|liftgate",
+        "directions": [
+          "delivery"
+        ]
+      },
+      "verify_conditions": [
+        "Direction inferred from section, or no explicit pickup/delivery direction."
+      ]
+    },
+    {
+      "code": "MTAIL",
+      "meaning": "Tail Gate Delivery",
+      "category": "Consignee / Delivery",
+      "triggers": [
+        "tail gate",
+        "tailgate"
+      ],
+      "example": "TAIL GATE DELIVERY",
+      "context": "delivery",
+      "display_rank": 6,
+      "plain_enabled": false,
+      "priority": 3,
+      "service": {
+        "pattern": "tail\\s*gate|tailgate",
+        "directions": [
+          "pickup",
+          "delivery"
+        ]
+      },
+      "verify_conditions": [
+        "Direction inferred from section, or no explicit pickup/delivery direction."
+      ]
+    },
+    {
+      "code": "MPL",
+      "meaning": "Must Have Pallet Jack To Delivery",
+      "category": "Consignee / Delivery",
+      "triggers": [
+        "pallet jack"
+      ],
+      "example": "MUST HAVE PALLET JACK",
+      "context": "delivery",
+      "display_rank": 6,
+      "plain_enabled": false,
+      "priority": 3,
+      "service": {
+        "pattern": "pallet\\s*jack|palletjack",
+        "directions": [
+          "delivery"
+        ]
+      },
+      "verify_conditions": [
+        "Direction inferred from section, or no explicit pickup/delivery direction."
+      ]
+    },
+    {
+      "code": "MPUP",
+      "meaning": "Must Deliver On PUP",
+      "category": "Consignee / Delivery",
+      "triggers": [
+        "must deliver on pup",
+        "deliver on pup"
+      ],
+      "example": "MUST DELIVER ON PUP",
+      "context": "delivery",
+      "display_rank": 6,
+      "plain_enabled": false,
+      "priority": 3,
+      "service": {
+        "pattern": "\\bpup\\b|must\\s+deliver\\s+on\\s+pup",
+        "directions": [
+          "delivery"
+        ]
+      },
+      "verify_conditions": [
+        "Direction inferred from section, or no explicit pickup/delivery direction."
+      ]
+    },
+    {
+      "code": "MRH",
+      "meaning": "Receiving Hours / Delivery Hours",
+      "category": "Consignee / Delivery",
+      "triggers": [
+        "receiving hours",
+        "delivery hours",
+        "dock hours"
+      ],
+      "example": "RECEIVING HOURS: 8AM-4PM",
+      "context": "consignee",
+      "display_rank": 4,
+      "plain_enabled": false,
+      "priority": 1,
+      "value_patterns": [
+        "\\breceiving\\s+hours\\s*:?\\s*([0-9A-Za-z\\-: ]{2,})",
+        "\\bdelivery\\s+hours\\s*:?\\s*([0-9A-Za-z\\-: ]{2,})",
+        "\\bdock\\s+hours\\s*:?\\s*([0-9A-Za-z\\-: ]{2,})"
+      ],
+      "allow_text_value": false
+    },
+    {
+      "code": "MST",
+      "meaning": "Must Deliver On: Straight/Box/Street/Short Truck",
+      "category": "Consignee / Delivery",
+      "triggers": [
+        "straight truck",
+        "box truck",
+        "street truck",
+        "short truck",
+        "small truck"
+      ],
+      "example": "MUST DELIVER ON BOX TRUCK",
+      "context": "delivery",
+      "display_rank": 6,
+      "plain_enabled": false,
+      "priority": 3,
+      "service": {
+        "pattern": "straight\\s*truck|box\\s*truck|street\\s*truck|short\\s*truck|small\\s*truck",
+        "directions": [
+          "delivery"
+        ]
+      },
+      "verify_conditions": [
+        "Direction inferred from section, or no explicit pickup/delivery direction."
+      ]
+    },
+    {
+      "code": "MPO",
+      "meaning": "Purchase Order # / PO # / Customer Purchase Order #",
+      "category": "Consignee / Delivery",
+      "triggers": [
+        "purchase order",
+        "po #",
+        "po no",
+        "po number",
+        "cust po"
+      ],
+      "example": "PO #: 458921",
+      "context": "any",
+      "display_rank": 4,
+      "plain_enabled": false,
+      "priority": 1,
+      "value_patterns": [
+        "\\bcustomer\\s+purchase\\s+order\\s*(?:#|no\\.?|number)?\\s*:?\\s*([A-Za-z0-9][A-Za-z0-9\\-/_. ]{0,})",
+        "\\bcust\\.?\\s+po\\s*(?:#|no\\.?|number)?\\s*:?\\s*([A-Za-z0-9][A-Za-z0-9\\-/_. ]{0,})",
+        "\\bcustomer\\s+po\\s*(?:#|no\\.?|number)?\\s*:?\\s*([A-Za-z0-9][A-Za-z0-9\\-/_. ]{0,})",
+        "\\bpurchase\\s+order\\s*(?:#|no\\.?|number)?\\s*:?\\s*([A-Za-z0-9][A-Za-z0-9\\-/_. ]{0,})",
+        "\\bp\\.?o\\.?\\s*(?:#|no\\.?|number)?\\s*:?\\s*(?![Bb][Oo][Xx]\\b)([A-Za-z0-9][A-Za-z0-9\\-/_. ]{0,})",
+        "\\bpo\\s*(?:#|no\\.?|number)?\\s*:?\\s*(?![Bb][Oo][Xx]\\b)([A-Za-z0-9][A-Za-z0-9\\-/_. ]{0,})"
+      ],
+      "allow_text_value": false
+    },
+    {
+      "code": "MCID",
+      "meaning": "Customer ID # / CID #",
+      "category": "Consignee / Delivery",
+      "triggers": [
+        "customer id",
+        "cid #",
+        "cid no"
+      ],
+      "example": "CID #: 90210",
+      "context": "consignee",
+      "display_rank": 4,
+      "plain_enabled": false,
+      "priority": 5,
+      "value_patterns": [
+        "\\bcustomer\\s+id\\s*(?:#|no\\.?|number)?\\s*:?\\s*([A-Za-z0-9][A-Za-z0-9\\-/_. ]{0,})",
+        "\\bcid\\s*(?:#|no\\.?|number)?\\s*:?\\s*([A-Za-z0-9][A-Za-z0-9\\-/_. ]{0,})"
+      ],
+      "allow_text_value": false
+    },
+    {
+      "code": "MCPH",
+      "meaning": "Customer Phone #",
+      "category": "Consignee / Delivery",
+      "triggers": [
+        "customer phone"
+      ],
+      "example": "CUSTOMER PHONE: 555-0199",
+      "context": "consignee",
+      "display_rank": 4,
+      "plain_enabled": false,
+      "priority": 1,
+      "value_patterns": [
+        "\\bcustomer\\s+phone\\s*(?:#|no\\.?|number)?\\s*:?\\s*([0-9+\\-(). ]{7,})"
+      ],
+      "allow_text_value": false
+    },
+    {
+      "code": "MCEM",
+      "meaning": "Customer Email ID",
+      "category": "Consignee / Delivery",
+      "triggers": [
+        "customer email"
+      ],
+      "example": "CUSTOMER EMAIL: recv@xyz.com",
+      "context": "consignee",
+      "display_rank": 4,
+      "plain_enabled": false,
+      "priority": 1,
+      "value_patterns": [
+        "\\bcustomer\\s+email\\s*(?:#|no\\.?|number)?\\s*:?\\s*([A-Za-z0-9._%+\\-@]{3,})"
+      ],
+      "allow_text_value": true
+    },
+    {
+      "code": "MDEIN",
+      "meaning": "Delivery #",
+      "category": "Consignee / Delivery",
+      "triggers": [
+        "delivery #",
+        "delivery no",
+        "delivery number"
+      ],
+      "example": "DELIVERY #: 55501",
+      "context": "delivery",
+      "display_rank": 4,
+      "plain_enabled": false,
+      "priority": 5,
+      "value_patterns": [
+        "\\bdelivery\\s*(?:#|no\\.?|number)\\s*:?\\s*([A-Za-z0-9][A-Za-z0-9\\-/_. ]{0,})"
+      ],
+      "allow_text_value": false
+    },
+    {
+      "code": "ID",
+      "meaning": "Inside Delivery",
+      "category": "Consignee / Delivery",
+      "triggers": [
+        "inside delivery"
+      ],
+      "example": "INSIDE DELIVERY",
+      "context": "delivery",
+      "display_rank": 6,
+      "plain_enabled": false,
+      "priority": 3,
+      "service": {
+        "pattern": "inside",
+        "directions": [
+          "delivery"
+        ]
+      },
+      "verify_conditions": [
+        "Direction inferred from section, or no explicit pickup/delivery direction."
+      ]
+    },
+    {
+      "code": "MDELD",
+      "meaning": "Delivery Date",
+      "category": "Delivery Dates",
+      "triggers": [
+        "delivery date"
+      ],
+      "example": "DELIVERY DATE: 09/15",
+      "context": "any",
+      "display_rank": 4,
+      "plain_enabled": false,
+      "priority": 5,
+      "value_patterns": [
+        "\\bdelivery\\s+date\\s*:?\\s*([0-9/\\-\\.]{3,})"
+      ],
+      "allow_text_value": false
+    },
+    {
+      "code": "MDUE",
+      "meaning": "Due Date",
+      "category": "Delivery Dates",
+      "triggers": [
+        "due date"
+      ],
+      "example": "DUE DATE: 09/15",
+      "context": "any",
+      "display_rank": 4,
+      "plain_enabled": false,
+      "priority": 5,
+      "value_patterns": [
+        "\\bdue\\s+date\\s*:?\\s*([0-9/\\-\\.]{3,})"
+      ],
+      "allow_text_value": false
+    },
+    {
+      "code": "MDD",
+      "meaning": "Delivery Date Requested",
+      "category": "Delivery Dates",
+      "triggers": [
+        "date requested",
+        "delivery date requested"
+      ],
+      "example": "DELIVERY DATE REQUESTED: 09/16",
+      "context": "any",
+      "display_rank": 4,
+      "plain_enabled": false,
+      "priority": 5,
+      "value_patterns": [
+        "\\bdate\\s+requested\\s*:?\\s*([0-9/\\-\\.]{3,})"
+      ],
+      "allow_text_value": false
+    },
+    {
+      "code": "MDELBY",
+      "meaning": "Delivery By",
+      "category": "Delivery Dates",
+      "triggers": [
+        "delivery by"
+      ],
+      "example": "DELIVERY BY: 09/16",
+      "context": "any",
+      "display_rank": 4,
+      "plain_enabled": false,
+      "priority": 5,
+      "value_patterns": [
+        "\\bdelivery\\s+by\\s*:?\\s*([0-9/\\-\\.]{3,})"
+      ],
+      "allow_text_value": false
+    },
+    {
+      "code": "MARRI",
+      "meaning": "Arrival Date",
+      "category": "Delivery Dates",
+      "triggers": [
+        "arrival date",
+        "arrive"
+      ],
+      "example": "ARRIVAL DATE: 09/14",
+      "context": "any",
+      "display_rank": 4,
+      "plain_enabled": false,
+      "priority": 5,
+      "value_patterns": [
+        "\\barrival\\s+date\\s*:?\\s*([0-9/\\-\\.]{3,})"
+      ],
+      "allow_text_value": false
+    },
+    {
+      "code": "MSCHED",
+      "meaning": "Scheduled Delivery Date(s)",
+      "category": "Delivery Dates",
+      "triggers": [
+        "scheduled delivery",
+        "schedule delivery"
+      ],
+      "example": "SCHEDULED DELIVERY DATE(S)",
+      "context": "any",
+      "display_rank": 4,
+      "plain_enabled": false,
+      "priority": 1,
+      "value_patterns": [
+        "\\bschedule(?:d)?\\s+delivery\\s*(?:date[s]?)?\\s*:?\\s*([0-9/\\-\\.]{3,})"
+      ],
+      "allow_text_value": false
+    },
+    {
+      "code": "MDAYS",
+      "meaning": "Delivery Between Two Dates",
+      "category": "Delivery Dates",
+      "triggers": [
+        "delivery between",
+        "between two dates"
+      ],
+      "example": "DELIVERY BETWEEN 09/15 AND 09/18",
+      "context": "any",
+      "display_rank": 4,
+      "plain_enabled": false,
+      "priority": 5,
+      "value_patterns": [
+        "\\bdelivery\\s+between\\s*:?\\s*([0-9/\\-\\.]{3,})"
+      ],
+      "allow_text_value": false
+    },
+    {
+      "code": "MBO",
+      "meaning": "Bill Of Lading # / BOL #",
+      "category": "Other Reference Numbers",
+      "triggers": [
+        "bill of lading",
+        "bol #",
+        "bol no",
+        "bol number"
+      ],
+      "example": "BOL #: 99887766",
+      "context": "any",
+      "display_rank": 4,
+      "plain_enabled": false,
+      "priority": 5,
+      "value_patterns": [
+        "\\bbill\\s+of\\s+lading\\s*(?:#|no\\.?|number)?\\s*:?\\s*([A-Za-z0-9][A-Za-z0-9\\-/_. ]{0,})",
+        "\\bb/?l\\s*(?:#|no\\.?|number)?\\s*:?\\s*([A-Za-z0-9][A-Za-z0-9\\-/_. ]{0,})",
+        "\\bbol\\s*(?:#|no\\.?|number)?\\s*:?\\s*([A-Za-z0-9][A-Za-z0-9\\-/_. ]{0,})"
+      ],
+      "allow_text_value": false
+    },
+    {
+      "code": "MMCK",
+      "meaning": "Master BOL #",
+      "category": "Other Reference Numbers",
+      "triggers": [
+        "master bol",
+        "master bill of lading"
+      ],
+      "example": "MASTER BOL #: 00123",
+      "context": "any",
+      "display_rank": 4,
+      "plain_enabled": false,
+      "priority": 1,
+      "value_patterns": [
+        "\\bmaster\\s+bol\\s*(?:#|no\\.?|number)?\\s*:?\\s*([A-Za-z0-9][A-Za-z0-9\\-/_. ]{0,})",
+        "\\bmaster\\s+bill\\s+of\\s+lading\\s*(?:#|no\\.?|number)?\\s*:?\\s*([A-Za-z0-9][A-Za-z0-9\\-/_. ]{0,})"
+      ],
+      "allow_text_value": false
+    },
+    {
+      "code": "MEL",
+      "meaning": "Release #",
+      "category": "Other Reference Numbers",
+      "triggers": [
+        "release #",
+        "release no",
+        "release number"
+      ],
+      "example": "RELEASE #: 501",
+      "context": "any",
+      "display_rank": 4,
+      "plain_enabled": false,
+      "priority": 5,
+      "value_patterns": [
+        "\\brelease\\s*(?:#|no\\.?|number)?\\s*:?\\s*([A-Za-z0-9][A-Za-z0-9\\-/_. ]{0,})"
+      ],
+      "allow_text_value": false
+    },
+    {
+      "code": "MORD",
+      "meaning": "Order Number",
+      "category": "Other Reference Numbers",
+      "triggers": [
+        "order #",
+        "order no",
+        "order number"
+      ],
+      "example": "ORDER #: 12234",
+      "context": "any",
+      "display_rank": 4,
+      "plain_enabled": false,
+      "priority": 5,
+      "value_patterns": [
+        "\\border\\s*(?:#|no\\.?|number)?\\s*:?\\s*([A-Za-z0-9][A-Za-z0-9\\-/_. ]{0,})"
+      ],
+      "allow_text_value": false,
+      "role": "generic_order",
+      "section_codes": {
+        "shipper": "MSORD",
+        "pickup": "MSORD",
+        "consignee": "MCORD",
+        "delivery": "MCORD"
+      }
+    },
+    {
+      "code": "MSO",
+      "meaning": "Sales Order #",
+      "category": "Other Reference Numbers",
+      "triggers": [
+        "sales order"
+      ],
+      "example": "SALES ORDER #: 902",
+      "context": "any",
+      "display_rank": 4,
+      "plain_enabled": false,
+      "priority": 1,
+      "value_patterns": [
+        "\\bsales\\s+order\\s*(?:#|no\\.?|number)?\\s*:?\\s*([A-Za-z0-9][A-Za-z0-9\\-/_. ]{0,})"
+      ],
+      "allow_text_value": false
+    },
+    {
+      "code": "MRF",
+      "meaning": "Reference #",
+      "category": "Other Reference Numbers",
+      "triggers": [
+        "reference #",
+        "reference no",
+        "ref #",
+        "ref no",
+        "reference number"
+      ],
+      "example": "REFERENCE #: 44771",
+      "context": "any",
+      "display_rank": 4,
+      "plain_enabled": false,
+      "priority": 5,
+      "value_patterns": [
+        "\\breference\\s*(?:#|no\\.?|number)?\\s*:?\\s*([A-Za-z0-9][A-Za-z0-9\\-/_. ]{0,})",
+        "\\bref\\s*(?:#|no\\.?|number)?\\s*:?\\s*([A-Za-z0-9][A-Za-z0-9\\-/_. ]{0,})"
+      ],
+      "allow_text_value": false
+    },
+    {
+      "code": "ML",
+      "meaning": "Load #",
+      "category": "Other Reference Numbers",
+      "triggers": [
+        "load #",
+        "load no",
+        "load number"
+      ],
+      "example": "LOAD #: 908",
+      "context": "any",
+      "display_rank": 4,
+      "plain_enabled": false,
+      "priority": 5,
+      "value_patterns": [
+        "\\bload\\s*(?:#|no\\.?|number)?\\s*:?\\s*([A-Za-z0-9][A-Za-z0-9\\-/_. ]{0,})"
+      ],
+      "allow_text_value": false
+    },
+    {
+      "code": "MJOB",
+      "meaning": "Job #",
+      "category": "Other Reference Numbers",
+      "triggers": [
+        "job #",
+        "job no",
+        "job number"
+      ],
+      "example": "JOB #: 778",
+      "context": "any",
+      "display_rank": 4,
+      "plain_enabled": false,
+      "priority": 5,
+      "value_patterns": [
+        "\\bjob\\s*(?:#|no\\.?|number)?\\s*:?\\s*([A-Za-z0-9][A-Za-z0-9\\-/_. ]{0,})"
+      ],
+      "allow_text_value": false
+    },
+    {
+      "code": "MPKS",
+      "meaning": "Packing List #",
+      "category": "Other Reference Numbers",
+      "triggers": [
+        "packing list #",
+        "packing list no"
+      ],
+      "example": "PACKING LIST #: 3301",
+      "context": "any",
+      "display_rank": 4,
+      "plain_enabled": false,
+      "priority": 5,
+      "value_patterns": [
+        "\\bpacking\\s+list\\s*(?:#|no\\.?|number)?\\s*:?\\s*([A-Za-z0-9][A-Za-z0-9\\-/_. ]{0,})"
+      ],
+      "allow_text_value": false
+    },
+    {
+      "code": "MPS",
+      "meaning": "Packing Slip #",
+      "category": "Other Reference Numbers",
+      "triggers": [
+        "packing slip #",
+        "packing slip no"
+      ],
+      "example": "PACKING SLIP #: 4011",
+      "context": "any",
+      "display_rank": 4,
+      "plain_enabled": false,
+      "priority": 5,
+      "value_patterns": [
+        "\\bpacking\\s+slip\\s*(?:#|no\\.?|number)?\\s*:?\\s*([A-Za-z0-9][A-Za-z0-9\\-/_. ]{0,})"
+      ],
+      "allow_text_value": false
+    },
+    {
+      "code": "MNV",
+      "meaning": "Invoice(s) #",
+      "category": "Other Reference Numbers",
+      "triggers": [
+        "invoice"
+      ],
+      "example": "INVOICE #: 55512",
+      "context": "any",
+      "display_rank": 4,
+      "plain_enabled": false,
+      "priority": 5,
+      "value_patterns": [
+        "\\binvoice[s]?\\s*(?:#|no\\.?|number)?\\s*:?\\s*([A-Za-z0-9][A-Za-z0-9\\-/_. ]{0,})"
+      ],
+      "allow_text_value": false
+    },
+    {
+      "code": "MGL",
+      "meaning": "General Ledger # / GL #",
+      "category": "Other Reference Numbers",
+      "triggers": [
+        "general ledger",
+        "gl #",
+        "gl no"
+      ],
+      "example": "GL #: 111-22",
+      "context": "any",
+      "display_rank": 4,
+      "plain_enabled": false,
+      "priority": 5,
+      "value_patterns": [
+        "\\bgeneral\\s+ledger\\s*(?:#|no\\.?|number)?\\s*:?\\s*([A-Za-z0-9][A-Za-z0-9\\-/_. ]{0,})",
+        "\\bgl\\s*(?:#|no\\.?|number)?\\s*:?\\s*([A-Za-z0-9][A-Za-z0-9\\-/_. ]{0,})",
+        "\\bgeneral\\s+ledger"
+      ],
+      "allow_text_value": false
+    },
+    {
+      "code": "MSF",
+      "meaning": "Serial #",
+      "category": "Other Reference Numbers",
+      "triggers": [
+        "serial #",
+        "serial no",
+        "serial number"
+      ],
+      "example": "SERIAL #: SN-88",
+      "context": "any",
+      "display_rank": 4,
+      "plain_enabled": false,
+      "priority": 5,
+      "value_patterns": [
+        "\\bserial\\s*(?:#|no\\.?|number)?\\s*:?\\s*([A-Za-z0-9][A-Za-z0-9\\-/_. ]{0,})"
+      ],
+      "allow_text_value": false
+    },
+    {
+      "code": "MVEND",
+      "meaning": "Vendor #",
+      "category": "Other Reference Numbers",
+      "triggers": [
+        "vendor #",
+        "vendor no",
+        "vendor number"
+      ],
+      "example": "VENDOR #: 7712",
+      "context": "any",
+      "display_rank": 4,
+      "plain_enabled": false,
+      "priority": 5,
+      "value_patterns": [
+        "\\bvendor\\s*(?:#|no\\.?|number)?\\s*:?\\s*([A-Za-z0-9][A-Za-z0-9\\-/_. ]{0,})"
+      ],
+      "allow_text_value": false
+    },
+    {
+      "code": "MPICKT",
+      "meaning": "Pick Ticket #",
+      "category": "Other Reference Numbers",
+      "triggers": [
+        "pick ticket"
+      ],
+      "example": "PICK TICKET #: 90",
+      "context": "any",
+      "display_rank": 4,
+      "plain_enabled": false,
+      "priority": 5,
+      "value_patterns": [
+        "\\bpick\\s+ticket\\s*(?:#|no\\.?|number)?\\s*:?\\s*([A-Za-z0-9][A-Za-z0-9\\-/_. ]{0,})"
+      ],
+      "allow_text_value": false
+    },
+    {
+      "code": "MWWE",
+      "meaning": "WWE # / World Wide Express #",
+      "category": "Other Reference Numbers",
+      "triggers": [
+        "world wide express",
+        "wwe #",
+        "wwe no"
+      ],
+      "example": "WWE #: 44",
+      "context": "any",
+      "display_rank": 4,
+      "plain_enabled": false,
+      "priority": 5,
+      "value_patterns": [
+        "\\bworld\\s+wide\\s+express\\s*(?:#|no\\.?|number)?\\s*:?\\s*([A-Za-z0-9][A-Za-z0-9\\-/_. ]{0,})",
+        "\\bwwe\\s*(?:#|no\\.?|number)?\\s*:?\\s*([A-Za-z0-9][A-Za-z0-9\\-/_. ]{0,})"
+      ],
+      "allow_text_value": false
+    },
+    {
+      "code": "MCODE",
+      "meaning": "Code #",
+      "category": "Other Reference Numbers",
+      "triggers": [
+        "code #",
+        "code no",
+        "code number"
+      ],
+      "example": "CODE #: 9090",
+      "context": "any",
+      "display_rank": 4,
+      "plain_enabled": false,
+      "priority": 5,
+      "value_patterns": [
+        "\\bcode\\s*(?:#|no\\.?|number)?\\s*:?\\s*([A-Za-z0-9][A-Za-z0-9\\-/_. ]{0,})"
+      ],
+      "allow_text_value": false
+    },
+    {
+      "code": "MDUNS",
+      "meaning": "DUNS #",
+      "category": "Other Reference Numbers",
+      "triggers": [
+        "duns"
+      ],
+      "example": "DUNS #: 00-111-2222",
+      "context": "any",
+      "display_rank": 4,
+      "plain_enabled": false,
+      "priority": 5,
+      "value_patterns": [
+        "\\bduns\\s*(?:#|no\\.?|number)?\\s*:?\\s*([A-Za-z0-9][A-Za-z0-9\\-/_. ]{0,})"
+      ],
+      "allow_text_value": false
+    },
+    {
+      "code": "MQN",
+      "meaning": "Quotation # / Quote #",
+      "category": "Other Reference Numbers",
+      "triggers": [
+        "quotation",
+        "quote #",
+        "quote no"
+      ],
+      "example": "QUOTE #: 5101",
+      "context": "any",
+      "display_rank": 4,
+      "plain_enabled": false,
+      "priority": 5,
+      "value_patterns": [
+        "\\bquotation\\s*(?:#|no\\.?|number)?\\s*:?\\s*([A-Za-z0-9][A-Za-z0-9\\-/_. ]{0,})",
+        "\\bquote\\s*(?:#|no\\.?|number)?\\s*:?\\s*([A-Za-z0-9][A-Za-z0-9\\-/_. ]{0,})"
+      ],
+      "allow_text_value": false
+    },
+    {
+      "code": "MBK",
+      "meaning": "Booking #",
+      "category": "Other Reference Numbers",
+      "triggers": [
+        "booking #",
+        "booking no",
+        "booking number"
+      ],
+      "example": "BOOKING #: 8801",
+      "context": "any",
+      "display_rank": 4,
+      "plain_enabled": false,
+      "priority": 5,
+      "value_patterns": [
+        "\\bbooking\\s*(?:#|no\\.?|number)?\\s*:?\\s*([A-Za-z0-9][A-Za-z0-9\\-/_. ]{0,})"
+      ],
+      "allow_text_value": false
+    },
+    {
+      "code": "MRA",
+      "meaning": "Return Authorization # / RA #",
+      "category": "Other Reference Numbers",
+      "triggers": [
+        "return authorization",
+        "ra #",
+        "ra no"
+      ],
+      "example": "RA #: 77",
+      "context": "any",
+      "display_rank": 4,
+      "plain_enabled": false,
+      "priority": 5,
+      "value_patterns": [
+        "\\breturn\\s+authorization\\s*(?:#|no\\.?|number)?\\s*:?\\s*([A-Za-z0-9][A-Za-z0-9\\-/_. ]{0,})",
+        "\\bra\\s*(?:#|no\\.?|number)?\\s*:?\\s*([A-Za-z0-9][A-Za-z0-9\\-/_. ]{0,})"
+      ],
+      "allow_text_value": false
+    },
+    {
+      "code": "MRGAN",
+      "meaning": "RGA #",
+      "category": "Other Reference Numbers",
+      "triggers": [
+        "rga"
+      ],
+      "example": "RGA #: 512",
+      "context": "any",
+      "display_rank": 4,
+      "plain_enabled": false,
+      "priority": 5,
+      "value_patterns": [
+        "\\brga\\s*(?:#|no\\.?|number)?\\s*:?\\s*([A-Za-z0-9][A-Za-z0-9\\-/_. ]{0,})"
+      ],
+      "allow_text_value": false
+    },
+    {
+      "code": "MWR",
+      "meaning": "Web PRO #",
+      "category": "Other Reference Numbers",
+      "triggers": [
+        "web pro",
+        "pro #",
+        "pro no",
+        "pro number"
+      ],
+      "example": "PRO #: 889900",
+      "context": "any",
+      "display_rank": 4,
+      "plain_enabled": false,
+      "priority": 5,
+      "value_patterns": [
+        "\\bweb\\s+pro\\s*(?:#|no\\.?|number)?\\s*:?\\s*([A-Za-z0-9][A-Za-z0-9\\-/_. ]{0,})",
+        "\\bpro\\s*(?:#|no\\.?|number)?\\s*:?\\s*([A-Za-z0-9][A-Za-z0-9\\-/_. ]{0,})"
+      ],
+      "allow_text_value": false
+    },
+    {
+      "code": "MFEST",
+      "meaning": "Manifest #",
+      "category": "Other Reference Numbers",
+      "triggers": [
+        "manifest #",
+        "manifest no",
+        "manifest number"
+      ],
+      "example": "MANIFEST #: 229",
+      "context": "any",
+      "display_rank": 4,
+      "plain_enabled": false,
+      "priority": 5,
+      "value_patterns": [
+        "\\bmanifest\\s*(?:#|no\\.?|number)?\\s*:?\\s*([A-Za-z0-9][A-Za-z0-9\\-/_. ]{0,})"
+      ],
+      "allow_text_value": false
+    },
+    {
+      "code": "MCONF",
+      "meaning": "Confirmation #",
+      "category": "Other Reference Numbers",
+      "triggers": [
+        "confirmation #",
+        "confirmation no"
+      ],
+      "example": "CONFIRMATION #: 908",
+      "context": "any",
+      "display_rank": 4,
+      "plain_enabled": false,
+      "priority": 5,
+      "value_patterns": [
+        "\\bconfirmation\\s*(?:#|no\\.?|number)?\\s*:?\\s*([A-Za-z0-9][A-Za-z0-9\\-/_. ]{0,})"
+      ],
+      "allow_text_value": false
+    },
+    {
+      "code": "MACCT",
+      "meaning": "Account #",
+      "category": "Other Reference Numbers",
+      "triggers": [
+        "account #",
+        "account no",
+        "account number"
+      ],
+      "example": "ACCOUNT #: 5512",
+      "context": "any",
+      "display_rank": 4,
+      "plain_enabled": false,
+      "priority": 5,
+      "value_patterns": [
+        "\\baccount\\s*(?:#|no\\.?|number)?\\s*:?\\s*([A-Za-z0-9][A-Za-z0-9\\-/_. ]{0,})"
+      ],
+      "allow_text_value": false
+    },
+    {
+      "code": "MDOCC",
+      "meaning": "Document #",
+      "category": "Other Reference Numbers",
+      "triggers": [
+        "document #",
+        "document no"
+      ],
+      "example": "DOCUMENT #: 5",
+      "context": "any",
+      "display_rank": 4,
+      "plain_enabled": false,
+      "priority": 5,
+      "value_patterns": [
+        "\\bdocument\\s*(?:#|no\\.?|number)?\\s*:?\\s*([A-Za-z0-9][A-Za-z0-9\\-/_. ]{0,})"
+      ],
+      "allow_text_value": false
+    },
+    {
+      "code": "MEE",
+      "meaning": "ME #",
+      "category": "Other Reference Numbers",
+      "triggers": [
+        "me #",
+        "me no"
+      ],
+      "example": "ME #: 909",
+      "context": "any",
+      "display_rank": 4,
+      "plain_enabled": false,
+      "priority": 5,
+      "value_patterns": [
+        "\\bme\\s*(?:#|no\\.?|number)?\\s*:?\\s*([A-Za-z0-9][A-Za-z0-9\\-/_. ]{0,})"
+      ],
+      "allow_text_value": false
+    },
+    {
+      "code": "MTKT",
+      "meaning": "Ticket #",
+      "category": "Other Reference Numbers",
+      "triggers": [
+        "ticket #",
+        "ticket no",
+        "ticket number"
+      ],
+      "example": "TICKET #: 6621",
+      "context": "any",
+      "display_rank": 4,
+      "plain_enabled": false,
+      "priority": 5,
+      "value_patterns": [
+        "\\bticket\\s*(?:#|no\\.?|number)?\\s*:?\\s*([A-Za-z0-9][A-Za-z0-9\\-/_. ]{0,})"
+      ],
+      "allow_text_value": false
+    },
+    {
+      "code": "MDOUBL",
+      "meaning": "Do Not Double Stack / Do Not Stack / Stackable - No",
+      "category": "Special Instructions",
+      "triggers": [
+        "do not double stack",
+        "do not stack",
+        "stackable no",
+        "non-stackable",
+        "non stackable",
+        "no stacking"
+      ],
+      "example": "DO NOT STACK",
+      "context": "any",
+      "display_rank": 5,
+      "plain_enabled": true,
+      "priority": 4
+    },
+    {
+      "code": "MDNB",
+      "meaning": "Do Not Break Down Skids / Pallets",
+      "category": "Special Instructions",
+      "triggers": [
+        "do not break down skids",
+        "do not break down pallets",
+        "do not break down"
+      ],
+      "example": "DO NOT BREAK DOWN SKIDS",
+      "context": "any",
+      "display_rank": 5,
+      "plain_enabled": true,
+      "priority": 4
+    },
+    {
+      "code": "MDNW",
+      "meaning": "Do Not Break Shrink Wrap",
+      "category": "Special Instructions",
+      "triggers": [
+        "do not break shrink wrap",
+        "do not remove shrink wrap",
+        "shrink wrap"
+      ],
+      "example": "DO NOT BREAK SHRINK WRAP",
+      "context": "any",
+      "display_rank": 5,
+      "plain_enabled": true,
+      "priority": 4
+    },
+    {
+      "code": "MDONT",
+      "meaning": "Do Not Top Load",
+      "category": "Special Instructions",
+      "triggers": [
+        "do not top load",
+        "no top load",
+        "top load"
+      ],
+      "example": "DO NOT TOP LOAD",
+      "context": "any",
+      "display_rank": 5,
+      "plain_enabled": true,
+      "priority": 4
+    },
+    {
+      "code": "MFORK",
+      "meaning": "Do Not Use Forklift",
+      "category": "Special Instructions",
+      "triggers": [
+        "do not use forklift",
+        "no forklift",
+        "forklift"
+      ],
+      "example": "DO NOT USE FORKLIFT",
+      "context": "any",
+      "display_rank": 5,
+      "plain_enabled": true,
+      "priority": 4
+    },
+    {
+      "code": "MDNDOP",
+      "meaning": "Do Not Deliver On Pallet",
+      "category": "Special Instructions",
+      "triggers": [
+        "do not deliver on pallet",
+        "do not deliver palletized"
+      ],
+      "example": "DO NOT DELIVER ON PALLET",
+      "context": "any",
+      "display_rank": 5,
+      "plain_enabled": true,
+      "priority": 4
+    },
+    {
+      "code": "MDNP",
+      "meaning": "Do Not Palletize From This Freight",
+      "category": "Special Instructions",
+      "triggers": [
+        "do not palletize",
+        "no palletizing"
+      ],
+      "example": "DO NOT PALLETIZE",
+      "context": "any",
+      "display_rank": 5,
+      "plain_enabled": true,
+      "priority": 4
+    },
+    {
+      "code": "MDONOT",
+      "meaning": "Do Not Remove From Pallet",
+      "category": "Special Instructions",
+      "triggers": [
+        "do not remove from pallet",
+        "keep on pallet"
+      ],
+      "example": "DO NOT REMOVE FROM PALLET",
+      "context": "any",
+      "display_rank": 5,
+      "plain_enabled": true,
+      "priority": 4
+    },
+    {
+      "code": "MDROPS",
+      "meaning": "Do Not Drop",
+      "category": "Special Instructions",
+      "triggers": [
+        "do not drop",
+        "no dropping"
+      ],
+      "example": "DO NOT DROP",
+      "context": "any",
+      "display_rank": 5,
+      "plain_enabled": true,
+      "priority": 4
+    },
+    {
+      "code": "MSLC",
+      "meaning": "Shipper Load And Count",
+      "category": "Special Instructions",
+      "triggers": [
+        "shipper load and count",
+        "shipper load & count",
+        "slac"
+      ],
+      "example": "SHIPPER LOAD AND COUNT",
+      "context": "any",
+      "display_rank": 5,
+      "plain_enabled": true,
+      "priority": 4
+    },
+    {
+      "code": "MDIM",
+      "meaning": "Dimensions",
+      "category": "Special Instructions",
+      "triggers": [
+        "dimensions",
+        "dimension"
+      ],
+      "example": "DIMENSIONS: 48x40x36",
+      "context": "any",
+      "display_rank": 4,
+      "plain_enabled": false,
+      "priority": 5,
+      "value_patterns": [
+        "\\bdimensions?\\s*:?\\s*([0-9A-Za-zxX\\*\\\"\\'\\-. ]{2,})"
+      ],
+      "allow_text_value": false
+    },
+    {
+      "code": "MEGLA",
+      "meaning": "Any Problems / Questions / Issues / Assistance",
+      "category": "Special Instructions",
+      "triggers": [
+        "any problems",
+        "questions",
+        "issues",
+        "assistance",
+        "call with any"
+      ],
+      "example": "CALL WITH ANY QUESTIONS",
+      "context": "any",
+      "display_rank": 5,
+      "plain_enabled": true,
+      "priority": 4
+    },
+    {
+      "code": "MPHONE",
+      "meaning": "Phone #",
+      "category": "Special Instructions",
+      "triggers": [
+        "phone #",
+        "phone no",
+        "phone number",
+        "tel #",
+        "telephone"
+      ],
+      "example": "PHONE: 555-1234",
+      "context": "any",
+      "display_rank": 4,
+      "plain_enabled": false,
+      "priority": 5,
+      "value_patterns": [
+        "\\bphone\\s*(?:#|no\\.?|number)?\\s*:?\\s*([0-9+\\-(). ]{7,})",
+        "\\btel\\s*(?:#|no\\.?|number)?\\s*:?\\s*([0-9+\\-(). ]{7,})",
+        "\\btelephone\\s*(?:#|no\\.?|number)?\\s*:?\\s*([0-9+\\-(). ]{7,})"
+      ],
+      "allow_text_value": false,
+      "role": "generic_phone",
+      "section_codes": {
+        "shipper": "MSPH",
+        "pickup": "MSPH",
+        "consignee": "MCPH",
+        "delivery": "MCPH"
+      }
+    },
+    {
+      "code": "MPFF",
+      "meaning": "Protect From Freezing",
+      "category": "Special Instructions",
+      "triggers": [
+        "protect from freezing",
+        "keep from freezing",
+        "do not freeze"
+      ],
+      "example": "PROTECT FROM FREEZING",
+      "context": "any",
+      "display_rank": 5,
+      "plain_enabled": true,
+      "priority": 4
+    },
+    {
+      "code": "MWEATH",
+      "meaning": "Protect From Weather",
+      "category": "Special Instructions",
+      "triggers": [
+        "protect from weather",
+        "keep from weather"
+      ],
+      "example": "PROTECT FROM WEATHER",
+      "context": "any",
+      "display_rank": 5,
+      "plain_enabled": true,
+      "priority": 4
+    },
+    {
+      "code": "MMOIST",
+      "meaning": "Protect From Moisture",
+      "category": "Special Instructions",
+      "triggers": [
+        "protect from moisture",
+        "keep from moisture"
+      ],
+      "example": "PROTECT FROM MOISTURE",
+      "context": "any",
+      "display_rank": 5,
+      "plain_enabled": true,
+      "priority": 4
+    },
+    {
+      "code": "MDRY",
+      "meaning": "Keep Material Dry",
+      "category": "Special Instructions",
+      "triggers": [
+        "keep material dry",
+        "keep dry"
+      ],
+      "example": "KEEP MATERIAL DRY",
+      "context": "any",
+      "display_rank": 5,
+      "plain_enabled": true,
+      "priority": 4
+    },
+    {
+      "code": "MHEAT",
+      "meaning": "Keep Away From Heat",
+      "category": "Special Instructions",
+      "triggers": [
+        "keep away from heat",
+        "keep from heat"
+      ],
+      "example": "KEEP AWAY FROM HEAT",
+      "context": "any",
+      "display_rank": 5,
+      "plain_enabled": true,
+      "priority": 4
+    },
+    {
+      "code": "MAFPU",
+      "meaning": "AFF Dispatch #",
+      "category": "Special Instructions",
+      "triggers": [
+        "aff dispatch",
+        "aff dispatch #"
+      ],
+      "example": "AFF DISPATCH #: 908",
+      "context": "any",
+      "display_rank": 4,
+      "plain_enabled": false,
+      "priority": 5,
+      "value_patterns": [
+        "\\baff\\s+dispatch\\s*(?:#|no\\.?|number)?\\s*:?\\s*([A-Za-z0-9][A-Za-z0-9\\-/_. ]{0,})"
+      ],
+      "allow_text_value": false
+    },
+    {
+      "code": "MPRA",
+      "meaning": "Fragile / Handle With Care",
+      "category": "Special Instructions",
+      "triggers": [
+        "fragile",
+        "handle with care"
+      ],
+      "example": "FRAGILE - HANDLE WITH CARE",
+      "context": "any",
+      "display_rank": 5,
+      "plain_enabled": true,
+      "priority": 4
+    },
+    {
+      "code": "MPACK",
+      "meaning": "Packing List / Pallet Slip / Documents / Envelopes / Certificates",
+      "category": "Special Instructions",
+      "triggers": [
+        "packing list",
+        "packing slip",
+        "pallet slip",
+        "documents",
+        "envelopes",
+        "certificates",
+        "paperwork"
+      ],
+      "example": "PACKING LIST ENCLOSED",
+      "context": "any",
+      "display_rank": 5,
+      "plain_enabled": true,
+      "priority": 4,
+      "exclude_patterns": [
+        "\\bpacking\\s+list\\s*(?:#|no\\.?\\b|number\\b)"
+      ]
+    },
+    {
+      "code": "MR",
+      "meaning": "Rush / Hot Rush / Hot Shipment / Urgent / ASAP",
+      "category": "Special Instructions",
+      "triggers": [
+        "rush",
+        "hot rush",
+        "hot shipment",
+        "urgent",
+        "asap"
+      ],
+      "example": "URGENT",
+      "context": "any",
+      "display_rank": 5,
+      "plain_enabled": true,
+      "priority": 4
+    },
+    {
+      "code": "MCA",
+      "meaning": "Call For Appointment WITH Phone Number",
+      "category": "Appointment Codes",
+      "triggers": [
+        "call for appointment",
+        "call to schedule",
+        "call to arrange",
+        "set up delivery",
+        "arrange delivery",
+        "schedule delivery",
+        "schedule appointment"
+      ],
+      "example": "CALL FOR APPOINTMENT 555-0100",
+      "context": "any",
+      "logic": "appointment",
+      "phone_dependent": true,
+      "display_rank": 7,
+      "plain_enabled": false,
+      "priority": 1,
+      "family": "appointment",
+      "role": "appointment_phone",
+      "phone_value": true,
+      "verify_conditions": [
+        "Required phone missing; multiple equally applicable phones produce CONFLICT."
+      ]
+    },
+    {
+      "code": "MCFA",
+      "meaning": "Call For Appointment WITHOUT Phone Number",
+      "category": "Appointment Codes",
+      "triggers": [
+        "call for appointment",
+        "call to schedule",
+        "call to arrange",
+        "set up delivery",
+        "arrange delivery",
+        "schedule delivery",
+        "schedule appointment"
+      ],
+      "example": "CALL FOR APPOINTMENT",
+      "context": "any",
+      "logic": "appointment",
+      "phone_dependent": true,
+      "display_rank": 7,
+      "plain_enabled": false,
+      "priority": 1,
+      "family": "appointment",
+      "role": "appointment_no_phone"
+    },
+    {
+      "code": "MADV",
+      "meaning": "Call For Appointment 24 Hours Before Delivery",
+      "category": "Appointment Codes",
+      "triggers": [
+        "24 hours",
+        "24 hrs",
+        "24hrs",
+        "twenty four hours"
+      ],
+      "example": "CALL FOR APPOINTMENT 24 HRS BEFORE DELIVERY",
+      "context": "any",
+      "logic": "appointment_time",
+      "hours": 24,
+      "display_rank": 7,
+      "plain_enabled": false,
+      "priority": 1,
+      "family": "appointment"
+    },
+    {
+      "code": "M48",
+      "meaning": "Call For Appointment 48 Hours Before Delivery",
+      "category": "Appointment Codes",
+      "triggers": [
+        "48 hours",
+        "48 hrs",
+        "48hrs",
+        "forty eight hours"
+      ],
+      "example": "CALL FOR APPOINTMENT 48 HRS BEFORE DELIVERY",
+      "context": "any",
+      "logic": "appointment_time",
+      "hours": 48,
+      "display_rank": 7,
+      "plain_enabled": false,
+      "priority": 1,
+      "family": "appointment"
+    },
+    {
+      "code": "M72A",
+      "meaning": "Call For Appointment 72 Hours Before Delivery",
+      "category": "Appointment Codes",
+      "triggers": [
+        "72 hours",
+        "72 hrs",
+        "72hrs",
+        "seventy two hours"
+      ],
+      "example": "CALL FOR APPOINTMENT 72 HRS BEFORE DELIVERY",
+      "context": "any",
+      "logic": "appointment_time",
+      "hours": 72,
+      "display_rank": 7,
+      "plain_enabled": false,
+      "priority": 1,
+      "family": "appointment"
+    },
+    {
+      "code": "MNDA",
+      "meaning": "No Appointment Necessary",
+      "category": "Appointment Codes",
+      "triggers": [
+        "no appointment necessary",
+        "no appointment needed",
+        "appointment not necessary",
+        "no appt necessary"
+      ],
+      "example": "NO APPOINTMENT NECESSARY",
+      "context": "any",
+      "logic": "appointment",
+      "display_rank": 7,
+      "plain_enabled": false,
+      "priority": 1,
+      "role": "no_appointment"
+    },
+    {
+      "code": "MBEFOR",
+      "meaning": "Call Before Delivery WITHOUT Phone Number",
+      "category": "Call Before / Prior To Delivery",
+      "triggers": [
+        "call before delivery",
+        "call prior to delivery",
+        "call before",
+        "call prior"
+      ],
+      "example": "CALL BEFORE DELIVERY",
+      "context": "any",
+      "logic": "callbefore",
+      "phone_dependent": true,
+      "display_rank": 8,
+      "plain_enabled": false,
+      "priority": 1,
+      "role": "callbefore_no_phone"
+    },
+    {
+      "code": "MCALLB",
+      "meaning": "Call Before Delivery WITH Phone Number",
+      "category": "Call Before / Prior To Delivery",
+      "triggers": [
+        "call before delivery",
+        "call prior to delivery",
+        "call before",
+        "call prior"
+      ],
+      "example": "CALL BEFORE DELIVERY 555-0100",
+      "context": "any",
+      "logic": "callbefore",
+      "phone_dependent": true,
+      "display_rank": 8,
+      "plain_enabled": false,
+      "priority": 1,
+      "role": "callbefore_phone",
+      "phone_value": true,
+      "verify_conditions": [
+        "Required phone missing; multiple equally applicable phones produce CONFLICT."
+      ]
+    },
+    {
+      "code": "M24",
+      "meaning": "Call 24 Hours Before Delivery WITH Phone Number",
+      "category": "Call Before / Prior To Delivery",
+      "triggers": [
+        "24 hours",
+        "24 hrs",
+        "24hrs"
+      ],
+      "example": "CALL 24 HRS BEFORE DELIVERY 555-1234",
+      "context": "any",
+      "logic": "callbefore_time",
+      "hours": 24,
+      "phone_dependent": true,
+      "display_rank": 8,
+      "plain_enabled": false,
+      "priority": 2,
+      "family": "callbefore",
+      "phone_value": true,
+      "verify_conditions": [
+        "Required phone missing; multiple equally applicable phones produce CONFLICT."
+      ]
+    },
+    {
+      "code": "M48H",
+      "meaning": "Call 48 Hours Before Delivery WITH Phone Number",
+      "category": "Call Before / Prior To Delivery",
+      "triggers": [
+        "48 hours",
+        "48 hrs",
+        "48hrs"
+      ],
+      "example": "CALL 48 HRS BEFORE DELIVERY 555-1234",
+      "context": "any",
+      "logic": "callbefore_time",
+      "hours": 48,
+      "phone_dependent": true,
+      "display_rank": 8,
+      "plain_enabled": false,
+      "priority": 2,
+      "family": "callbefore",
+      "phone_value": true,
+      "verify_conditions": [
+        "Required phone missing; multiple equally applicable phones produce CONFLICT."
+      ]
+    },
+    {
+      "code": "M1HO",
+      "meaning": "Call 1 Hour Before Delivery",
+      "category": "Call Before / Prior To Delivery",
+      "triggers": [
+        "1 hour",
+        "one hour",
+        "1 hr"
+      ],
+      "example": "CALL 1 HOUR BEFORE DELIVERY",
+      "context": "any",
+      "logic": "callbefore_time",
+      "hours": 1,
+      "display_rank": 8,
+      "plain_enabled": false,
+      "priority": 2,
+      "family": "callbefore"
+    },
+    {
+      "code": "M2B4",
+      "meaning": "Call 2 Hours Before Delivery",
+      "category": "Call Before / Prior To Delivery",
+      "triggers": [
+        "2 hours",
+        "two hours",
+        "2 hrs"
+      ],
+      "example": "CALL 2 HOURS BEFORE DELIVERY",
+      "context": "any",
+      "logic": "callbefore_time",
+      "hours": 2,
+      "display_rank": 8,
+      "plain_enabled": false,
+      "priority": 2,
+      "family": "callbefore"
+    },
+    {
+      "code": "MNOTI",
+      "meaning": "Notify Prior To Delivery / Notifications Required / Notify Consignee",
+      "category": "Call Before / Prior To Delivery",
+      "triggers": [
+        "notify prior to delivery",
+        "notifications required",
+        "notify consignee",
+        "notify before delivery",
+        "notification required"
+      ],
+      "example": "NOTIFY PRIOR TO DELIVERY",
+      "context": "any",
+      "logic": "callbefore",
+      "display_rank": 8,
+      "plain_enabled": false,
+      "priority": 1,
+      "role": "notify"
+    }
+  ],
+  "priority_order": [
+    "exact_contextual",
+    "time_specific",
+    "side_specific",
+    "exact_trigger",
+    "structured_label",
+    "partial_fuzzy",
+    "verify"
+  ],
+  "patterns": {
+    "appointment": [
+      "call\\s+for\\s+(?:an\\s+)?appointment",
+      "call\\s+to\\s+schedule",
+      "call\\s+to\\s+arrange",
+      "schedule\\s+(?:the\\s+)?(?:delivery|appointment)",
+      "arrange\\s+(?:for\\s+)?(?:delivery|appointment)",
+      "set\\s*[- ]?up\\s+(?:the\\s+)?delivery",
+      "\\bappointment\\b"
+    ],
+    "no_appointment": [
+      "no\\s+appointment\\s+(?:necessary|needed|required|required\\s+no)",
+      "no\\s+appt\\s*(?:necessary|needed)?",
+      "appointment\\s+not\\s+necessary"
+    ],
+    "callbefore": [
+      "call\\s+before",
+      "call\\s+prior\\s+to",
+      "notify\\s+(?:prior\\s+to\\s+|before\\s+)?delivery",
+      "notifications?\\s+required",
+      "notify\\s+consignee"
+    ],
+    "attention": "\\b(?:attn|attention|contact)\\s*:?\\s*(.+?)\\s*$"
+  },
+  "precedence_notes": [
+    "Exact contextual rules precede timing, side, exact trigger, structured label, partial/fuzzy, then VERIFY.",
+    "Reference matches sharing a value span: explicit contextual labels win, followed by section context, then generic labels. Longest label breaks specificity ties; equal incompatible candidates remain CONFLICT.",
+    "Appointment wording selects appointment timing; call-before timing is used only without appointment wording.",
+    "Phone values use the instruction line, adjacent unambiguous phone, then compatible section/contact context; unrelated shipper phones cannot satisfy delivery instructions."
+  ],
+  "contextual_precedence": [
+    {
+      "trigger": "schedule delivery",
+      "codes": [
+        "MCA",
+        "MCFA",
+        "MSCHED"
+      ],
+      "reason": "A captured structured delivery date identifies MSCHED; scheduling an appointment without a date selects MCA with an associated phone or MCFA without a phone. No generic substring rule may decide this trigger."
+    },
+    {
+      "trigger": "call for appointment",
+      "codes": [
+        "MCA",
+        "MCFA"
+      ],
+      "reason": "The phone-dependent code applies only with an associated phone and no explicit timing; the no-phone code applies only without an associated phone and no explicit timing. Explicit timing selects its more specific rule."
+    },
+    {
+      "trigger": "call to schedule",
+      "codes": [
+        "MCA",
+        "MCFA"
+      ],
+      "reason": "The phone-dependent code applies only with an associated phone and no explicit timing; the no-phone code applies only without an associated phone and no explicit timing. Explicit timing selects its more specific rule."
+    },
+    {
+      "trigger": "call to arrange",
+      "codes": [
+        "MCA",
+        "MCFA"
+      ],
+      "reason": "The phone-dependent code applies only with an associated phone and no explicit timing; the no-phone code applies only without an associated phone and no explicit timing. Explicit timing selects its more specific rule."
+    },
+    {
+      "trigger": "set up delivery",
+      "codes": [
+        "MCA",
+        "MCFA"
+      ],
+      "reason": "The phone-dependent code applies only with an associated phone and no explicit timing; the no-phone code applies only without an associated phone and no explicit timing. Explicit timing selects its more specific rule."
+    },
+    {
+      "trigger": "arrange delivery",
+      "codes": [
+        "MCA",
+        "MCFA"
+      ],
+      "reason": "The phone-dependent code applies only with an associated phone and no explicit timing; the no-phone code applies only without an associated phone and no explicit timing. Explicit timing selects its more specific rule."
+    },
+    {
+      "trigger": "schedule appointment",
+      "codes": [
+        "MCA",
+        "MCFA"
+      ],
+      "reason": "The phone-dependent code applies only with an associated phone and no explicit timing; the no-phone code applies only without an associated phone and no explicit timing. Explicit timing selects its more specific rule."
+    },
+    {
+      "trigger": "24 hours",
+      "codes": [
+        "M24",
+        "MADV"
+      ],
+      "reason": "Appointment intent selects the appointment timing rule (MADV/M48); call-before intent selects M24/M48H and requires an associated phone. Timing alone is insufficient; missing intent is VERIFY."
+    },
+    {
+      "trigger": "24 hrs",
+      "codes": [
+        "M24",
+        "MADV"
+      ],
+      "reason": "Appointment intent selects the appointment timing rule (MADV/M48); call-before intent selects M24/M48H and requires an associated phone. Timing alone is insufficient; missing intent is VERIFY."
+    },
+    {
+      "trigger": "24hrs",
+      "codes": [
+        "M24",
+        "MADV"
+      ],
+      "reason": "Appointment intent selects the appointment timing rule (MADV/M48); call-before intent selects M24/M48H and requires an associated phone. Timing alone is insufficient; missing intent is VERIFY."
+    },
+    {
+      "trigger": "48 hours",
+      "codes": [
+        "M48",
+        "M48H"
+      ],
+      "reason": "Appointment intent selects the appointment timing rule (MADV/M48); call-before intent selects M24/M48H and requires an associated phone. Timing alone is insufficient; missing intent is VERIFY."
+    },
+    {
+      "trigger": "48 hrs",
+      "codes": [
+        "M48",
+        "M48H"
+      ],
+      "reason": "Appointment intent selects the appointment timing rule (MADV/M48); call-before intent selects M24/M48H and requires an associated phone. Timing alone is insufficient; missing intent is VERIFY."
+    },
+    {
+      "trigger": "48hrs",
+      "codes": [
+        "M48",
+        "M48H"
+      ],
+      "reason": "Appointment intent selects the appointment timing rule (MADV/M48); call-before intent selects M24/M48H and requires an associated phone. Timing alone is insufficient; missing intent is VERIFY."
+    },
+    {
+      "trigger": "call before delivery",
+      "codes": [
+        "MBEFOR",
+        "MCALLB"
+      ],
+      "reason": "The phone-dependent code applies only with an associated phone and no explicit timing; the no-phone code applies only without an associated phone and no explicit timing. Explicit timing selects its more specific rule."
+    },
+    {
+      "trigger": "call prior to delivery",
+      "codes": [
+        "MBEFOR",
+        "MCALLB"
+      ],
+      "reason": "The phone-dependent code applies only with an associated phone and no explicit timing; the no-phone code applies only without an associated phone and no explicit timing. Explicit timing selects its more specific rule."
+    },
+    {
+      "trigger": "call before",
+      "codes": [
+        "MBEFOR",
+        "MCALLB"
+      ],
+      "reason": "The phone-dependent code applies only with an associated phone and no explicit timing; the no-phone code applies only without an associated phone and no explicit timing. Explicit timing selects its more specific rule."
+    },
+    {
+      "trigger": "call prior",
+      "codes": [
+        "MBEFOR",
+        "MCALLB"
+      ],
+      "reason": "The phone-dependent code applies only with an associated phone and no explicit timing; the no-phone code applies only without an associated phone and no explicit timing. Explicit timing selects its more specific rule."
+    }
+  ]
+}

@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block title %}M-Code Master - R+L BOL / Tenet Assistant{% endblock %}
+{% block content %}
+<h1 class="page-title">M-CODE MASTER</h1>
+<p class="page-sub">Searchable master list with reverse lookup (BOL wording → M-Code). <span id="master-count"></span></p>
+
+<div class="card">
+  <div class="row mb">
+    <input type="text" id="master-search" placeholder="Filter: code, meaning, or trigger wording..." style="max-width:420px">
+    <select id="master-category" style="max-width:260px">
+      <option value="">All Categories</option>
+    </select>
+  </div>
+  <div class="table-wrap" style="overflow-x:auto">
+    <table id="master-table">
+      <thead><tr><th>CODE</th><th>MEANING</th><th>CATEGORY</th><th>TRIGGER WORDS</th><th>EXAMPLE</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener("DOMContentLoaded", async () => {
+  let allCodes = [];
+  try {
+    const data = await API.get("/api/mcodes");
+    allCodes = data.codes;
+    document.getElementById("master-count").textContent = `${data.count} M-Codes loaded from data/mcode_rules.json`;
+    const catSel = document.getElementById("master-category");
+    (data.categories || []).forEach((c) => {
+      const opt = document.createElement("option");
+      opt.value = c; opt.textContent = c;
+      catSel.appendChild(opt);
+    });
+  } catch (e) {
+    document.getElementById("master-count").textContent = "⚠ " + e.message;
+  }
+
+  function render() {
+    const q = document.getElementById("master-search").value.trim().toLowerCase();
+    const cat = document.getElementById("master-category").value;
+    const tbody = document.querySelector("#master-table tbody");
+    tbody.innerHTML = "";
+    let n = 0;
+    allCodes.forEach((c) => {
+      if (cat && c.category !== cat) return;
+      if (q) {
+        const hay = (c.code + " " + c.meaning + " " + (c.triggers || []).join(" ") + " " + (c.example || "")).toLowerCase();
+        if (!hay.includes(q)) return;
+      }
+      n++;
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td><span class="code-chip">${esc(c.code)}</span></td>
+        <td>${esc(c.meaning)}</td>
+        <td><span class="badge badge-blue">${esc(c.category)}</span></td>
+        <td class="small">${esc((c.triggers || []).join(", "))}</td>
+        <td class="small mono">${esc(c.example || "")}</td>`;
+      tbody.appendChild(tr);
+    });
+    if (!n) tbody.innerHTML = '<tr><td colspan="5" class="small">No codes match the filter.</td></tr>';
+  }
+
+  document.getElementById("master-search").addEventListener("input", render);
+  document.getElementById("master-category").addEventListener("change", render);
+  render();
+});
+</script>
+{% endblock %}

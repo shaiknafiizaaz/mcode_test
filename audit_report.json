@@ -1,0 +1,835 @@
+{
+  "total_authoritative_codes": 102,
+  "total_trigger_phrases": 278,
+  "duplicate_codes": [],
+  "conflicting_triggers": [
+    {
+      "trigger": "schedule delivery",
+      "codes": [
+        "MCA",
+        "MCFA",
+        "MSCHED"
+      ],
+      "context_documented": true
+    },
+    {
+      "trigger": "call for appointment",
+      "codes": [
+        "MCA",
+        "MCFA"
+      ],
+      "context_documented": true
+    },
+    {
+      "trigger": "call to schedule",
+      "codes": [
+        "MCA",
+        "MCFA"
+      ],
+      "context_documented": true
+    },
+    {
+      "trigger": "call to arrange",
+      "codes": [
+        "MCA",
+        "MCFA"
+      ],
+      "context_documented": true
+    },
+    {
+      "trigger": "set up delivery",
+      "codes": [
+        "MCA",
+        "MCFA"
+      ],
+      "context_documented": true
+    },
+    {
+      "trigger": "arrange delivery",
+      "codes": [
+        "MCA",
+        "MCFA"
+      ],
+      "context_documented": true
+    },
+    {
+      "trigger": "schedule appointment",
+      "codes": [
+        "MCA",
+        "MCFA"
+      ],
+      "context_documented": true
+    },
+    {
+      "trigger": "24 hours",
+      "codes": [
+        "M24",
+        "MADV"
+      ],
+      "context_documented": true
+    },
+    {
+      "trigger": "24 hrs",
+      "codes": [
+        "M24",
+        "MADV"
+      ],
+      "context_documented": true
+    },
+    {
+      "trigger": "24hrs",
+      "codes": [
+        "M24",
+        "MADV"
+      ],
+      "context_documented": true
+    },
+    {
+      "trigger": "48 hours",
+      "codes": [
+        "M48",
+        "M48H"
+      ],
+      "context_documented": true
+    },
+    {
+      "trigger": "48 hrs",
+      "codes": [
+        "M48",
+        "M48H"
+      ],
+      "context_documented": true
+    },
+    {
+      "trigger": "48hrs",
+      "codes": [
+        "M48",
+        "M48H"
+      ],
+      "context_documented": true
+    },
+    {
+      "trigger": "call before delivery",
+      "codes": [
+        "MBEFOR",
+        "MCALLB"
+      ],
+      "context_documented": true
+    },
+    {
+      "trigger": "call prior to delivery",
+      "codes": [
+        "MBEFOR",
+        "MCALLB"
+      ],
+      "context_documented": true
+    },
+    {
+      "trigger": "call before",
+      "codes": [
+        "MBEFOR",
+        "MCALLB"
+      ],
+      "context_documented": true
+    },
+    {
+      "trigger": "call prior",
+      "codes": [
+        "MBEFOR",
+        "MCALLB"
+      ],
+      "context_documented": true
+    }
+  ],
+  "verify_rules": [
+    "LIFTP",
+    "RPU",
+    "IPU",
+    "MBR",
+    "MA",
+    "RC",
+    "MLIFT",
+    "MTAIL",
+    "MPL",
+    "MPUP",
+    "MST",
+    "ID",
+    "MCA",
+    "MCALLB",
+    "M24",
+    "M48H"
+  ],
+  "tests_total": 160,
+  "tests_passed": 160,
+  "tests_failed": 0,
+  "ollama_available": true,
+  "vision_model_available": true,
+  "offline_core_test_passed": true,
+  "tests_skipped": 0,
+  "test_exit_code": 0,
+  "integrity_errors": [],
+  "generated_at": "2026-09-07T16:16:58.503800+00:00",
+  "rule_database_sha256": "9c8d24955401254581a2e4ba9bcdabdc704991a88dd3a7044ff953b6bc4a5c69",
+  "offline_test_method": "Application outbound sockets denied (including Ollama), API keys/tokens removed from test environment, isolated SQLite storage. Windows internal asyncio socketpair is permitted. Host network settings are unchanged.",
+  "completion_status": "COMPLETE",
+  "test_results": [
+    {
+      "test": "tests.test_appointments.test_call_for_appointment_with_phone",
+      "passed": true
+    },
+    {
+      "test": "tests.test_appointments.test_call_for_appointment_without_phone",
+      "passed": true
+    },
+    {
+      "test": "tests.test_appointments.test_call_before_with_phone",
+      "passed": true
+    },
+    {
+      "test": "tests.test_appointments.test_call_before_without_phone",
+      "passed": true
+    },
+    {
+      "test": "tests.test_appointments.test_call_24_hrs_before_with_phone",
+      "passed": true
+    },
+    {
+      "test": "tests.test_appointments.test_call_24_hrs_before_without_phone_warns",
+      "passed": true
+    },
+    {
+      "test": "tests.test_appointments.test_call_for_appointment_48_hrs_before",
+      "passed": true
+    },
+    {
+      "test": "tests.test_appointments.test_call_for_appointment_72_hrs_before",
+      "passed": true
+    },
+    {
+      "test": "tests.test_appointments.test_call_for_appointment_24_hrs_before",
+      "passed": true
+    },
+    {
+      "test": "tests.test_appointments.test_call_1_hour_before",
+      "passed": true
+    },
+    {
+      "test": "tests.test_appointments.test_call_2_hours_before",
+      "passed": true
+    },
+    {
+      "test": "tests.test_appointments.test_notify_prior_to_delivery",
+      "passed": true
+    },
+    {
+      "test": "tests.test_appointments.test_no_appointment_necessary",
+      "passed": true
+    },
+    {
+      "test": "tests.test_appointments.test_appointment_vs_no_appointment_conflict",
+      "passed": true
+    },
+    {
+      "test": "tests.test_appointments.test_call_prior_to_delivery",
+      "passed": true
+    },
+    {
+      "test": "tests.test_appointments.test_schedule_delivery_is_appointment",
+      "passed": true
+    },
+    {
+      "test": "tests.test_appointments.test_arrange_delivery_is_appointment",
+      "passed": true
+    },
+    {
+      "test": "tests.test_handling_units.test_one_pallet",
+      "passed": true
+    },
+    {
+      "test": "tests.test_handling_units.test_two_pallets",
+      "passed": true
+    },
+    {
+      "test": "tests.test_handling_units.test_one_skid",
+      "passed": true
+    },
+    {
+      "test": "tests.test_handling_units.test_three_skids",
+      "passed": true
+    },
+    {
+      "test": "tests.test_handling_units.test_plt_abbreviation",
+      "passed": true
+    },
+    {
+      "test": "tests.test_handling_units.test_skd_abbreviation",
+      "passed": true
+    },
+    {
+      "test": "tests.test_handling_units.test_word_number",
+      "passed": true
+    },
+    {
+      "test": "tests.test_handling_units.test_nmfc_never_mm",
+      "passed": true
+    },
+    {
+      "test": "tests.test_handling_units.test_bare_pallet_no_count",
+      "passed": true
+    },
+    {
+      "test": "tests.test_handling_units.test_do_not_stack_has_no_count",
+      "passed": true
+    },
+    {
+      "test": "tests.test_handling_units.test_pallet_jack_not_mm",
+      "passed": true
+    },
+    {
+      "test": "tests.test_mcodes.test_do_not_stack",
+      "passed": true
+    },
+    {
+      "test": "tests.test_mcodes.test_stackable_no",
+      "passed": true
+    },
+    {
+      "test": "tests.test_mcodes.test_lift_gate_delivery",
+      "passed": true
+    },
+    {
+      "test": "tests.test_mcodes.test_lift_gate_pickup",
+      "passed": true
+    },
+    {
+      "test": "tests.test_mcodes.test_residential_delivery",
+      "passed": true
+    },
+    {
+      "test": "tests.test_mcodes.test_residential_pickup",
+      "passed": true
+    },
+    {
+      "test": "tests.test_mcodes.test_inside_pickup",
+      "passed": true
+    },
+    {
+      "test": "tests.test_mcodes.test_inside_delivery",
+      "passed": true
+    },
+    {
+      "test": "tests.test_mcodes.test_po_number",
+      "passed": true
+    },
+    {
+      "test": "tests.test_mcodes.test_attn_person",
+      "passed": true
+    },
+    {
+      "test": "tests.test_mcodes.test_urgent",
+      "passed": true
+    },
+    {
+      "test": "tests.test_mcodes.test_protect_from_freezing",
+      "passed": true
+    },
+    {
+      "test": "tests.test_mcodes.test_do_not_remove_from_pallet",
+      "passed": true
+    },
+    {
+      "test": "tests.test_mcodes.test_shipper_load_and_count",
+      "passed": true
+    },
+    {
+      "test": "tests.test_mcodes.test_tail_gate_delivery",
+      "passed": true
+    },
+    {
+      "test": "tests.test_mcodes.test_pallet_jack",
+      "passed": true
+    },
+    {
+      "test": "tests.test_mcodes.test_do_not_top_load",
+      "passed": true
+    },
+    {
+      "test": "tests.test_mcodes.test_nmfc_never_becomes_mm",
+      "passed": true
+    },
+    {
+      "test": "tests.test_mcodes.test_parts_department_never_becomes_ma",
+      "passed": true
+    },
+    {
+      "test": "tests.test_mcodes.test_attn_department_never_becomes_ma",
+      "passed": true
+    },
+    {
+      "test": "tests.test_mcodes.test_receiving_shipping_departments_not_ma",
+      "passed": true
+    },
+    {
+      "test": "tests.test_mcodes.test_pallet_jack_is_not_handling_unit",
+      "passed": true
+    },
+    {
+      "test": "tests.test_mcodes.test_po_box_not_po",
+      "passed": true
+    },
+    {
+      "test": "tests.test_mcodes.test_ambiguous_call_warns_without_guessing",
+      "passed": true
+    },
+    {
+      "test": "tests.test_mcodes.test_customer_service_not_customer_number",
+      "passed": true
+    },
+    {
+      "test": "tests.test_mcodes.test_no_mcode_invented_for_unknown_text",
+      "passed": true
+    },
+    {
+      "test": "tests.test_offline.test_offline_pages[/]",
+      "passed": true
+    },
+    {
+      "test": "tests.test_offline.test_offline_pages[/search]",
+      "passed": true
+    },
+    {
+      "test": "tests.test_offline.test_offline_pages[/manual]",
+      "passed": true
+    },
+    {
+      "test": "tests.test_offline.test_offline_pages[/assistant]",
+      "passed": true
+    },
+    {
+      "test": "tests.test_offline.test_offline_pages[/mock-test]",
+      "passed": true
+    },
+    {
+      "test": "tests.test_offline.test_offline_pages[/master]",
+      "passed": true
+    },
+    {
+      "test": "tests.test_offline.test_offline_pages[/history]",
+      "passed": true
+    },
+    {
+      "test": "tests.test_offline.test_offline_pages[/settings]",
+      "passed": true
+    },
+    {
+      "test": "tests.test_offline.test_offline_core",
+      "passed": true
+    },
+    {
+      "test": "tests.test_offline.test_offline_server_startup",
+      "passed": true
+    },
+    {
+      "test": "tests.test_parser.test_parser_sections",
+      "passed": true
+    },
+    {
+      "test": "tests.test_parser.test_acceptance_basic_mappings",
+      "passed": true
+    },
+    {
+      "test": "tests.test_parser.test_acceptance_statuses_confirmed",
+      "passed": true
+    },
+    {
+      "test": "tests.test_parser.test_acceptance_traceability",
+      "passed": true
+    },
+    {
+      "test": "tests.test_parser.test_acceptance_suggested_entries",
+      "passed": true
+    },
+    {
+      "test": "tests.test_parser.test_acceptance_no_conflicts",
+      "passed": true
+    },
+    {
+      "test": "tests.test_parser.test_full_workflow_with_payment_and_description",
+      "passed": true
+    },
+    {
+      "test": "tests.test_parser.test_missing_payment_is_not_detected",
+      "passed": true
+    },
+    {
+      "test": "tests.test_parser.test_mbr_missing_zip_warns",
+      "passed": true
+    },
+    {
+      "test": "tests.test_parser.test_mbr_no_false_positive_with_zip",
+      "passed": true
+    },
+    {
+      "test": "tests.test_parser.test_mbr_no_false_positive_without_address",
+      "passed": true
+    },
+    {
+      "test": "tests.test_references.test_po_with_hash",
+      "passed": true
+    },
+    {
+      "test": "tests.test_references.test_po_number_word",
+      "passed": true
+    },
+    {
+      "test": "tests.test_references.test_purchase_order",
+      "passed": true
+    },
+    {
+      "test": "tests.test_references.test_customer_purchase_order",
+      "passed": true
+    },
+    {
+      "test": "tests.test_references.test_bol_number",
+      "passed": true
+    },
+    {
+      "test": "tests.test_references.test_master_bol_wins_over_bol",
+      "passed": true
+    },
+    {
+      "test": "tests.test_references.test_invoice",
+      "passed": true
+    },
+    {
+      "test": "tests.test_references.test_reference_number",
+      "passed": true
+    },
+    {
+      "test": "tests.test_references.test_store_number",
+      "passed": true
+    },
+    {
+      "test": "tests.test_references.test_customer_number",
+      "passed": true
+    },
+    {
+      "test": "tests.test_references.test_cust_code",
+      "passed": true
+    },
+    {
+      "test": "tests.test_references.test_pro_number_maps_to_web_pro",
+      "passed": true
+    },
+    {
+      "test": "tests.test_references.test_order_context_shipper",
+      "passed": true
+    },
+    {
+      "test": "tests.test_references.test_order_context_consignee",
+      "passed": true
+    },
+    {
+      "test": "tests.test_references.test_order_no_context",
+      "passed": true
+    },
+    {
+      "test": "tests.test_references.test_delivery_date",
+      "passed": true
+    },
+    {
+      "test": "tests.test_references.test_due_date",
+      "passed": true
+    },
+    {
+      "test": "tests.test_references.test_delivery_by",
+      "passed": true
+    },
+    {
+      "test": "tests.test_references.test_shipper_ref",
+      "passed": true
+    },
+    {
+      "test": "tests.test_references.test_pickup_number",
+      "passed": true
+    },
+    {
+      "test": "tests.test_references.test_shipment_number",
+      "passed": true
+    },
+    {
+      "test": "tests.test_references.test_serial_number",
+      "passed": true
+    },
+    {
+      "test": "tests.test_references.test_vendor_number",
+      "passed": true
+    },
+    {
+      "test": "tests.test_references.test_phone_label_without_hash_is_generic_phone",
+      "passed": true
+    },
+    {
+      "test": "tests.test_references.test_phone_with_hash_is_mpbone",
+      "passed": true
+    },
+    {
+      "test": "tests.test_regressions.test_required_regressions[CALL FOR APPOINTMENT 48 HOURS BEFORE DELIVERY-M48-None]",
+      "passed": true
+    },
+    {
+      "test": "tests.test_regressions.test_required_regressions[CALL 48 HOURS BEFORE DELIVERY 555-123-4567-M48H-555-123-4567]",
+      "passed": true
+    },
+    {
+      "test": "tests.test_regressions.test_required_regressions[CALL FOR APPOINTMENT 555-123-4567-MCA-555-123-4567]",
+      "passed": true
+    },
+    {
+      "test": "tests.test_regressions.test_required_regressions[CALL FOR APPOINTMENT-MCFA-None]",
+      "passed": true
+    },
+    {
+      "test": "tests.test_regressions.test_required_regressions[CALL BEFORE DELIVERY 555-123-4567-MCALLB-555-123-4567]",
+      "passed": true
+    },
+    {
+      "test": "tests.test_regressions.test_required_regressions[CALL BEFORE DELIVERY-MBEFOR-None]",
+      "passed": true
+    },
+    {
+      "test": "tests.test_regressions.test_required_regressions[CALL 24 HOURS BEFORE DELIVERY\\n555-123-4567-M24-555-123-4567]",
+      "passed": true
+    },
+    {
+      "test": "tests.test_regressions.test_required_regressions[CALL 1 HOUR BEFORE DELIVERY-M1HO-None]",
+      "passed": true
+    },
+    {
+      "test": "tests.test_regressions.test_required_regressions[CALL 2 HOURS BEFORE DELIVERY-M2B4-None]",
+      "passed": true
+    },
+    {
+      "test": "tests.test_regressions.test_required_regressions[NO APPOINTMENT NECESSARY-MNDA-None]",
+      "passed": true
+    },
+    {
+      "test": "tests.test_regressions.test_required_regressions[LIFT GATE PICKUP-LIFTP-None]",
+      "passed": true
+    },
+    {
+      "test": "tests.test_regressions.test_required_regressions[LIFT GATE AT PICKUP-LIFTP-None]",
+      "passed": true
+    },
+    {
+      "test": "tests.test_regressions.test_required_regressions[LIFT GATE DELIVERY-MLIFT-None]",
+      "passed": true
+    },
+    {
+      "test": "tests.test_regressions.test_required_regressions[RESIDENTIAL PICKUP-RPU-None]",
+      "passed": true
+    },
+    {
+      "test": "tests.test_regressions.test_required_regressions[RESIDENTIAL DELIVERY-RC-None]",
+      "passed": true
+    },
+    {
+      "test": "tests.test_regressions.test_required_regressions[INSIDE PICKUP-IPU-None]",
+      "passed": true
+    },
+    {
+      "test": "tests.test_regressions.test_required_regressions[INSIDE DELIVERY-ID-None]",
+      "passed": true
+    },
+    {
+      "test": "tests.test_regressions.test_required_regressions[SHIPPER PHONE 555-1111-MSPH-555-1111]",
+      "passed": true
+    },
+    {
+      "test": "tests.test_regressions.test_required_regressions[CUSTOMER PHONE 555-2222-MCPH-555-2222]",
+      "passed": true
+    },
+    {
+      "test": "tests.test_regressions.test_required_regressions[PHONE 555-3333-MPHONE-555-3333]",
+      "passed": true
+    },
+    {
+      "test": "tests.test_regressions.test_required_regressions[PO # 12345-MPO-12345]",
+      "passed": true
+    },
+    {
+      "test": "tests.test_regressions.test_required_regressions[PACKING LIST # 987-MPKS-987]",
+      "passed": true
+    },
+    {
+      "test": "tests.test_regressions.test_required_regressions[PACKING LIST ENCLOSED-MPACK-None]",
+      "passed": true
+    },
+    {
+      "test": "tests.test_regressions.test_required_regressions[SHIPPER REFERENCE # 100-MSHRE-100]",
+      "passed": true
+    },
+    {
+      "test": "tests.test_regressions.test_required_regressions[REFERENCE # 100-MRF-100]",
+      "passed": true
+    },
+    {
+      "test": "tests.test_regressions.test_required_regressions[SHIPPER ORDER # 200-MSORD-200]",
+      "passed": true
+    },
+    {
+      "test": "tests.test_regressions.test_required_regressions[CUSTOMER ORDER # 300-MCORD-300]",
+      "passed": true
+    },
+    {
+      "test": "tests.test_regressions.test_required_regressions[ORDER # 400-MORD-400]",
+      "passed": true
+    },
+    {
+      "test": "tests.test_regressions.test_required_regressions[STORE #: 145-MSTO-145]",
+      "passed": true
+    },
+    {
+      "test": "tests.test_regressions.test_required_regressions[SUITE 200-MSUI-200]",
+      "passed": true
+    },
+    {
+      "test": "tests.test_regressions.test_required_regressions[CUSTOMER #: 99821-MCN-99821]",
+      "passed": true
+    },
+    {
+      "test": "tests.test_regressions.test_required_regressions[ATTN: John Smith-MA-John Smith]",
+      "passed": true
+    },
+    {
+      "test": "tests.test_regressions.test_required_regressions[2 SKIDS-MM-2 SKDS]",
+      "passed": true
+    },
+    {
+      "test": "tests.test_regressions.test_required_regressions[PO #: AbC-001-MPO-AbC-001]",
+      "passed": true
+    },
+    {
+      "test": "tests.test_regressions.test_generic_phone_uses_section[shipper-MSPH]",
+      "passed": true
+    },
+    {
+      "test": "tests.test_regressions.test_generic_phone_uses_section[consignee-MCPH]",
+      "passed": true
+    },
+    {
+      "test": "tests.test_regressions.test_generic_phone_uses_section[any-MPHONE]",
+      "passed": true
+    },
+    {
+      "test": "tests.test_regressions.test_unrelated_shipper_phone_is_not_delivery_contact",
+      "passed": true
+    },
+    {
+      "test": "tests.test_regressions.test_conflicting_phones_are_not_arbitrarily_selected",
+      "passed": true
+    },
+    {
+      "test": "tests.test_regressions.test_appointment_conflict_marks_entries",
+      "passed": true
+    },
+    {
+      "test": "tests.test_regressions.test_multiple_reference_values_on_one_line",
+      "passed": true
+    },
+    {
+      "test": "tests.test_regressions.test_plain_tie_is_conflict",
+      "passed": true
+    },
+    {
+      "test": "tests.test_regressions.test_authoritative_database_validates",
+      "passed": true
+    },
+    {
+      "test": "tests.test_regressions.test_database_rejects_invalid_rules[duplicate]",
+      "passed": true
+    },
+    {
+      "test": "tests.test_regressions.test_database_rejects_invalid_rules[meaning]",
+      "passed": true
+    },
+    {
+      "test": "tests.test_regressions.test_database_rejects_invalid_rules[trigger]",
+      "passed": true
+    },
+    {
+      "test": "tests.test_regressions.test_database_rejects_invalid_rules[missing]",
+      "passed": true
+    },
+    {
+      "test": "tests.test_regressions.test_database_rejects_invalid_rules[category]",
+      "passed": true
+    },
+    {
+      "test": "tests.test_regressions.test_database_rejects_invalid_rules[regex]",
+      "passed": true
+    },
+    {
+      "test": "tests.test_regressions.test_database_rejects_invalid_rules[malformed]",
+      "passed": true
+    },
+    {
+      "test": "tests.test_regressions.test_long_reference_value_is_preserved",
+      "passed": true
+    },
+    {
+      "test": "tests.test_regressions.test_missing_reference_value_is_not_invented[PO #]",
+      "passed": true
+    },
+    {
+      "test": "tests.test_regressions.test_missing_reference_value_is_not_invented[CUSTOMER #]",
+      "passed": true
+    },
+    {
+      "test": "tests.test_regressions.test_missing_reference_value_is_not_invented[PACKING LIST #]",
+      "passed": true
+    },
+    {
+      "test": "tests.test_regressions.test_conflicts_are_excluded_from_copy_panel",
+      "passed": true
+    },
+    {
+      "test": "tests.test_regressions.test_startup_rejects_invalid_authoritative_database",
+      "passed": true
+    },
+    {
+      "test": "tests.test_regressions.test_no_independent_python_code_mappings",
+      "passed": true
+    },
+    {
+      "test": "tests.test_regressions.test_conflicting_call_timings_are_not_silently_chosen",
+      "passed": true
+    },
+    {
+      "test": "tests.test_regressions.test_scheduled_date_does_not_create_appointment",
+      "passed": true
+    },
+    {
+      "test": "tests.test_regressions.test_reference_number_is_not_call_phone",
+      "passed": true
+    }
+  ],
+  "completion_gates": {
+    "server_starts": true,
+    "no_startup_traceback": true,
+    "mcode_json_validates": true,
+    "search_works": true,
+    "manual_analyzer_works": true,
+    "paste_analyzer_works": true,
+    "mm_engine_works": true,
+    "reference_extraction_works": true,
+    "appointment_logic_works": true,
+    "call_before_logic_works": true,
+    "mock_test_works": true,
+    "wrong_answer_tracking_works": true,
+    "history_works": true,
+    "offline_core_works": true,
+    "all_automated_tests_pass": true,
+    "acceptance_bol_expected_results": true
+  }
+}

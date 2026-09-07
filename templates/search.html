@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}M-Code Search - R+L BOL / Tenet Assistant{% endblock %}
+{% block content %}
+<h1 class="page-title">M-CODE SEARCH</h1>
+<p class="page-sub">Instant reverse lookup: type BOL wording, meaning, or the code itself.</p>
+
+<div class="card">
+  <div class="search-box">
+    <input type="text" id="search-input" placeholder="Type e.g.  do not stack | purchase order | lift gate delivery | MPO | po" autofocus>
+  </div>
+  <div class="hint mb">Examples: <button class="btn-ghost btn btn-sm" data-q="do not stack">do not stack</button>
+    <button class="btn-ghost btn btn-sm" data-q="purchase order">purchase order</button>
+    <button class="btn-ghost btn btn-sm" data-q="lift gate delivery">lift gate delivery</button>
+    <button class="btn-ghost btn btn-sm" data-q="MPO">MPO</button>
+    <button class="btn-ghost btn btn-sm" data-q="call for appointment">call for appointment</button></div>
+  <div id="search-results"></div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const input = document.getElementById("search-input");
+  const container = document.getElementById("search-results");
+  let timer = null;
+
+  async function runSearch(q) {
+    if (!q.trim()) { container.innerHTML = ""; return; }
+    try {
+      const data = await API.get("/api/search?q=" + encodeURIComponent(q));
+      renderSearchResults(data.results, container);
+    } catch (e) {
+      container.innerHTML = `<div class="conflict-box">⚠ ${esc(e.message)}</div>`;
+    }
+  }
+
+  input.addEventListener("input", () => {
+    clearTimeout(timer);
+    timer = setTimeout(() => runSearch(input.value), 150);
+  });
+  input.addEventListener("keydown", (e) => { if (e.key === "Enter") runSearch(input.value); });
+
+  document.querySelectorAll("[data-q]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      input.value = btn.dataset.q;
+      runSearch(input.value);
+    });
+  });
+
+  runSearch("do not stack");
+});
+</script>
+{% endblock %}

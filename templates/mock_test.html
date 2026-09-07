@@ -1,0 +1,220 @@
+{% extends "base.html" %}
+{% block title %}Mock Test - R+L BOL / Tenet Assistant{% endblock %}
+{% block content %}
+<h1 class="page-title">MOCK TEST / PRACTICE</h1>
+<p class="page-sub">Practice identifying M-Codes. Answers are normalized (mdoUbl = MDOUBL). Wrong answers are tracked locally so you can practice your weak codes.</p>
+
+<div class="grid grid-2">
+  <div class="card" id="setup-card">
+    <h2>TEST SETUP</h2>
+    <label>Mode</label>
+    <select id="mode">
+      <option value="practice">PRACTICE MODE (instant feedback)</option>
+      <option value="exam">MOCK EXAM (score at the end)</option>
+      <option value="wrong">WRONG ANSWERS (weak codes first)</option>
+      <option value="category">CATEGORY PRACTICE</option>
+      <option value="master">MASTER TEST (all codes)</option>
+    </select>
+    <label>Category</label>
+    <select id="category">
+      <option value="All Categories">All Categories</option>
+      <option value="Shipper">Shipper</option>
+      <option value="Consignee">Consignee</option>
+      <option value="Delivery Dates">Delivery Dates</option>
+      <option value="References">References</option>
+      <option value="Special Instructions">Special Instructions</option>
+      <option value="Appointment">Appointment</option>
+      <option value="Call Before">Call Before</option>
+    </select>
+    <label>Number of Questions</label>
+    <select id="count">
+      <option value="10">10 Questions</option>
+      <option value="25">25 Questions</option>
+      <option value="50">50 Questions</option>
+      <option value="0">All Questions</option>
+    </select>
+    <div class="row mt">
+      <button class="btn" id="start-test">START</button>
+    </div>
+  </div>
+
+  <div class="card" id="weak-card">
+    <h2>WEAK CODES <span class="badge badge-orange">PRACTICE THESE</span></h2>
+    <div id="weak-list"><span class="small">Loading...</span></div>
+  </div>
+</div>
+
+<div class="card hidden" id="quiz-card">
+  <div class="row mb">
+    <h2 id="quiz-title" style="margin:0">PRACTICE</h2>
+    <span class="right small" id="quiz-progress"></span>
+  </div>
+  <div class="quiz-question" id="quiz-prompt"></div>
+  <div class="small mb" id="quiz-hint"></div>
+  <div class="row">
+    <input type="text" id="quiz-input" placeholder="Type the M-Code..." style="max-width:260px" autocomplete="off" autocapitalize="off">
+    <button class="btn" id="quiz-submit">SUBMIT</button>
+    <button class="btn btn-ghost hidden" id="quiz-next">NEXT QUESTION</button>
+    <button class="btn btn-secondary hidden" id="quiz-finish">FINISH</button>
+  </div>
+  <div id="quiz-feedback"></div>
+</div>
+
+<div class="card hidden" id="score-card">
+  <h2>RESULT</h2>
+  <div class="row">
+    <div class="stat-tile"><div class="num" id="score-num">—</div><div class="lbl">Score</div></div>
+    <div class="stat-tile"><div class="num" id="score-correct">—</div><div class="lbl">Correct</div></div>
+    <div class="stat-tile"><div class="num" id="score-total">—</div><div class="lbl">Total</div></div>
+  </div>
+  <div id="score-detail" class="mt"></div>
+  <div class="row mt">
+    <button class="btn" id="retry">TRY AGAIN</button>
+    <button class="btn btn-ghost" id="practice-weak">PRACTICE WEAK CODES</button>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const questions = [];
+  let idx = 0, correct = 0, wrongList = [], isExam = false;
+
+  function normalizeAnswer(s) {
+    return String(s || "").trim().toUpperCase().replace(/\s+/g, "");
+  }
+
+  function loadWeak() {
+    API.get("/api/mock/weak").then((d) => {
+      const el = document.getElementById("weak-list");
+      if (!d.weak_codes.length) {
+        el.innerHTML = '<span class="small">No weak codes yet - take a test and wrong answers will appear here.</span>';
+        return;
+      }
+      el.innerHTML = d.weak_codes.map((w) =>
+        `<div class="row"><span class="code-chip">${esc(w.code)}</span>
+         <span class="small">${w.attempts} attempts · ${w.accuracy}% accuracy</span></div>`).join("");
+    }).catch((e) => { document.getElementById("weak-list").innerHTML = esc(e.message); });
+  }
+  loadWeak();
+
+  document.getElementById("start-test").addEventListener("click", async () => {
+    const mode = document.getElementById("mode").value;
+    const category = document.getElementById("category").value;
+    const count = parseInt(document.getElementById("count").value, 10) || 0;
+    const btn = document.getElementById("start-test");
+    btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Preparing...';
+    try {
+      const data = await API.get(`/api/mock/questions?mode=${mode}&category=${encodeURIComponent(category)}&count=${count}`);
+      questions.length = 0;
+      questions.push(...data.questions);
+      if (!questions.length) { alert("No questions for this category yet."); return; }
+      idx = 0; correct = 0; wrongList = [];
+      isExam = mode === "exam";
+      document.getElementById("quiz-title").textContent = document.getElementById("mode").selectedOptions[0].textContent;
+      document.getElementById("setup-card").classList.add("hidden");
+      document.getElementById("score-card").classList.add("hidden");
+      document.getElementById("quiz-card").classList.remove("hidden");
+      showQuestion();
+    } catch (e) {
+      alert("Failed to start: " + e.message);
+    } finally {
+      btn.disabled = false; btn.textContent = "START";
+    }
+  });
+
+  function showQuestion() {
+    const q = questions[idx];
+    document.getElementById("quiz-progress").textContent = `Question ${idx + 1} of ${questions.length}`;
+    document.getElementById("quiz-prompt").textContent = q.prompt;
+    document.getElementById("quiz-hint").textContent = q.prompt_kind === "meaning"
+      ? "This is the meaning - type the code" : "This is BOL wording - type the M-Code";
+    document.getElementById("quiz-input").value = "";
+    document.getElementById("quiz-feedback").innerHTML = "";
+    document.getElementById("quiz-input").focus();
+    document.getElementById("quiz-submit").classList.remove("hidden");
+    document.getElementById("quiz-next").classList.add("hidden");
+    document.getElementById("quiz-finish").classList.add("hidden");
+  }
+
+  function submitAnswer() {
+    const q = questions[idx];
+    const answer = normalizeAnswer(document.getElementById("quiz-input").value);
+    const isCorrect = answer === q.code;
+    if (isCorrect) correct++;
+    else wrongList.push({ code: q.code, prompt: q.prompt, answer });
+    API.post("/api/mock/record", { code: q.code, correct: isCorrect }).catch(() => {});
+
+    const fb = document.getElementById("quiz-feedback");
+    if (isCorrect) {
+      fb.innerHTML = `<div class="quiz-feedback-correct">✓ CORRECT</div>
+        <div class="small">${esc(q.code)} - ${esc(q.meaning)}</div>`;
+    } else {
+      fb.innerHTML = `<div class="quiz-feedback-wrong">✗ INCORRECT</div>
+        <div class="small">Correct answer: <span class="code-chip">${esc(q.code)}</span> - ${esc(q.meaning)}</div>`;
+    }
+    document.getElementById("quiz-submit").classList.add("hidden");
+    const isLast = idx >= questions.length - 1;
+    document.getElementById("quiz-next").classList.toggle("hidden", isLast);
+    document.getElementById("quiz-finish").classList.toggle("hidden", !isLast);
+  }
+
+  document.getElementById("quiz-submit").addEventListener("click", submitAnswer);
+  document.getElementById("quiz-input").addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      const sub = document.getElementById("quiz-submit");
+      if (!sub.classList.contains("hidden")) submitAnswer();
+      else nextOrFinish();
+    }
+  });
+
+  function nextOrFinish() {
+    if (idx >= questions.length - 1) finishTest();
+    else { idx++; showQuestion(); }
+  }
+  document.getElementById("quiz-next").addEventListener("click", nextOrFinish);
+  document.getElementById("quiz-finish").addEventListener("click", finishTest);
+
+  function finishTest() {
+    const total = questions.length;
+    document.getElementById("quiz-card").classList.add("hidden");
+    const scoreCard = document.getElementById("score-card");
+    scoreCard.classList.remove("hidden");
+    document.getElementById("score-correct").textContent = correct;
+    document.getElementById("score-total").textContent = total;
+    const pct = total ? Math.round((correct / total) * 100) : 0;
+    document.getElementById("score-num").textContent = pct + "%";
+    document.getElementById("score-num").style.color = pct >= 90 ? "var(--green)" : pct >= 70 ? "var(--orange)" : "var(--red)";
+    const mode = document.getElementById("mode").value;
+    const category = document.getElementById("category").value;
+    API.post("/api/mock/session", { mode, category, total, correct }).catch(() => {});
+    const detail = document.getElementById("score-detail");
+    detail.innerHTML = "";
+    if (wrongList.length) {
+      detail.innerHTML = "<h3>Questions to review</h3>";
+      wrongList.forEach((w) => {
+        const d = document.createElement("div");
+        d.className = "warn-box";
+        d.innerHTML = `<b>${esc(w.prompt)}</b> — you answered <span class="code-chip">${esc(w.answer || "(blank)")}</span> — correct: <span class="code-chip">${esc(w.code)}</span>`;
+        detail.appendChild(d);
+      });
+    } else {
+      detail.innerHTML = '<div class="info-box">Perfect score! 🎉</div>';
+    }
+    loadWeak();
+  }
+
+  document.getElementById("retry").addEventListener("click", () => {
+    document.getElementById("score-card").classList.add("hidden");
+    document.getElementById("setup-card").classList.remove("hidden");
+  });
+  document.getElementById("practice-weak").addEventListener("click", () => {
+    document.getElementById("mode").value = "wrong";
+    document.getElementById("setup-card").classList.remove("hidden");
+    document.getElementById("score-card").classList.add("hidden");
+    document.getElementById("start-test").click();
+  });
+});
+</script>
+{% endblock %}

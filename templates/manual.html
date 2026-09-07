@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% block title %}Manual Entry - R+L BOL / Tenet Assistant{% endblock %}
+{% block content %}
+<h1 class="page-title">MANUAL ENTRY ASSISTANT</h1>
+<p class="page-sub">Enter the BOL fields below. Everything is processed through the same deterministic rule engine.</p>
+
+<div class="card">
+  <h2>BOL FIELDS</h2>
+  <div class="grid grid-2">
+    <div>
+      <label>Shipper</label><input type="text" id="f-shipper" placeholder="ABC MANUFACTURING">
+      <label>Consignee</label><input type="text" id="f-consignee" placeholder="XYZ STORES">
+      <label>ATTN (contact person)</label><input type="text" id="f-attn" placeholder="JOHN SMITH">
+      <label>Bill To</label><input type="text" id="f-bill_to">
+      <label>Freight Terms (payment)</label>
+      <select id="f-freight_terms">
+        <option value="">— not printed —</option>
+        <option value="PREPAID">PREPAID</option>
+        <option value="COLLECT">COLLECT</option>
+        <option value="THIRD PARTY">THIRD PARTY</option>
+        <option value="FREE ASTRAY">FREE ASTRAY</option>
+      </select>
+      <label>PRO Number</label><input type="text" id="f-pro_number">
+      <label>Handling Units</label><input type="text" id="f-handling_units" placeholder="2 SKIDS">
+      <label>Pieces</label><input type="text" id="f-pieces">
+      <label>Weight</label><input type="text" id="f-weight">
+    </div>
+    <div>
+      <label>Description</label><textarea id="f-description" rows="3"></textarea>
+      <label>NMFC</label><input type="text" id="f-nmfc">
+      <label>Class</label><input type="text" id="f-class">
+      <label>References (one per line, e.g. "PO #: 458921", "BOL #: 12345")</label>
+      <textarea id="f-references" rows="3" class="mono"></textarea>
+      <label>Special Instructions (one per line)</label>
+      <textarea id="f-special_instructions" rows="4" class="mono" placeholder="DO NOT STACK&#10;LIFT GATE DELIVERY&#10;CALL 24 HRS BEFORE DELIVERY&#10;PHONE: 555-1234"></textarea>
+      <label>Contact Information</label><textarea id="f-contact_information" rows="2"></textarea>
+      <label>Pickup Instructions</label><textarea id="f-pickup_instructions" rows="2"></textarea>
+      <label>Delivery Instructions</label><textarea id="f-delivery_instructions" rows="2"></textarea>
+    </div>
+  </div>
+  <div class="row mt">
+    <button class="btn" id="analyze-manual">ANALYZE</button>
+    <button class="btn btn-ghost" id="load-sample">LOAD SAMPLE</button>
+  </div>
+</div>
+<div id="result-manual"></div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const ids = ["shipper","consignee","attn","bill_to","freight_terms","pro_number",
+    "handling_units","pieces","weight","description","nmfc","class","references",
+    "special_instructions","contact_information","pickup_instructions","delivery_instructions"];
+
+  const sample = {
+    shipper: "ABC INDUSTRIES",
+    consignee: "XYZ STORES",
+    attn: "JOHN SMITH",
+    freight_terms: "PREPAID",
+    pro_number: "889900",
+    handling_units: "2 SKIDS",
+    pieces: "4",
+    weight: "1200 LBS",
+    description: "AUTO PARTS ON SKIDS",
+    nmfc: "123456",
+    class: "70",
+    references: "PO #: 458921",
+    special_instructions: "DO NOT STACK\nLIFT GATE DELIVERY\nCALL 24 HRS BEFORE DELIVERY\nPHONE: 555-1234",
+  };
+
+  document.getElementById("load-sample").addEventListener("click", () => {
+    Object.entries(sample).forEach(([k, v]) => {
+      const el = document.getElementById("f-" + k);
+      if (el) el.value = v;
+    });
+  });
+
+  document.getElementById("analyze-manual").addEventListener("click", async () => {
+    const fields = {};
+    ids.forEach((k) => { fields[k] = document.getElementById("f-" + k).value; });
+    const btn = document.getElementById("analyze-manual");
+    btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Analyzing...';
+    try {
+      const result = await API.post("/api/analyze", { fields, source_type: "manual" });
+      renderResult(result, document.getElementById("result-manual"));
+    } catch (e) {
+      document.getElementById("result-manual").innerHTML = `<div class="conflict-box">⚠ ${esc(e.message)}</div>`;
+    } finally {
+      btn.disabled = false; btn.textContent = "ANALYZE";
+    }
+  });
+});
+</script>
+{% endblock %}

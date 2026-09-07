@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "source": "Tenet/EBS description processing priority: FLUSH -> NMFC / ITEM -> CLASS -> R LINE -> RDG. Nothing is invented; insufficient source information produces VERIFY.",
+  "priority": ["FLUSH", "NMFC / ITEM", "CLASS", "R LINE", "RDG"],
+  "flush_keywords": ["flush"],
+  "nmfc_label_patterns": ["nmfc", "nmfc#", "nmfc #", "nmfc no"],
+  "class_label_patterns": ["class", "class#", "class #"],
+  "rline_label_patterns": ["r line", "r-line", "rline", "rl"],
+  "rdg_label_patterns": ["rdg"],
+  "rule": "If the description contains an NMFC item number and a class, they may be entered together. If either is missing, mark VERIFY / INSUFFICIENT INFORMATION. NEVER convert an NMFC value into an MM handling-unit entry. NEVER invent FLUSH, NMFC, CLASS, R-LINE or RDG values."
+}

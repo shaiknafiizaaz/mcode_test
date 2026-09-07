@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% block title %}Dashboard - R+L BOL / Tenet Assistant{% endblock %}
+{% block content %}
+<h1 class="page-title">R+L BOL / TENET ASSISTANT</h1>
+<p class="page-sub">Local M-Code learning and BOL analysis assistant. Every suggestion is deterministic and traceable - the app never invents an M-Code.</p>
+
+<div class="grid grid-3 mb" id="stat-cards">
+  <div class="stat-tile"><div class="num" id="stat-tests">—</div><div class="lbl">Total Tests</div></div>
+  <div class="stat-tile"><div class="num" id="stat-avg">—</div><div class="lbl">Average Score</div></div>
+  <div class="stat-tile"><div class="num" id="stat-mastered">—</div><div class="lbl">Codes Mastered</div></div>
+  <div class="stat-tile"><div class="num" id="stat-weak">—</div><div class="lbl">Codes Needing Practice</div></div>
+  <div class="stat-tile"><div class="num" id="stat-codes">—</div><div class="lbl">M-Codes in Database</div></div>
+  <div class="stat-tile"><div class="num" id="stat-ollama">—</div><div class="lbl">Local Vision (Ollama)</div></div>
+</div>
+
+<div class="grid grid-3 mb">
+  <a class="dash-card" href="/assistant">
+    <div class="icon">📋</div><div class="name">Analyze BOL</div>
+    <div class="desc">Paste BOL text or upload an image for local analysis</div>
+  </a>
+  <a class="dash-card" href="/manual">
+    <div class="icon">⌨️</div><div class="name">Manual Entry</div>
+    <div class="desc">Structured form feeding the same deterministic engine</div>
+  </a>
+  <a class="dash-card" href="/search">
+    <div class="icon">🔍</div><div class="name">Search M-Code</div>
+    <div class="desc">Type wording, meaning or code - instant reverse lookup</div>
+  </a>
+  <a class="dash-card" href="/mock-test">
+    <div class="icon">🎯</div><div class="name">Practice M-Codes</div>
+    <div class="desc">Mock tests, weak-code practice and accuracy tracking</div>
+  </a>
+  <a class="dash-card" href="/master">
+    <div class="icon">📚</div><div class="name">M-Code Master List</div>
+    <div class="desc">Searchable table of every code with triggers and examples</div>
+  </a>
+  <a class="dash-card" href="/history">
+    <div class="icon">🕘</div><div class="name">Recent History</div>
+    <div class="desc">Past analyses stored locally - searchable and deletable</div>
+  </a>
+</div>
+
+<div class="grid grid-2">
+  <div class="card">
+    <h2>Recent Wrong Answers</h2>
+    <div id="recent-wrong"><span class="small">Loading...</span></div>
+  </div>
+  <div class="card">
+    <h2>Privacy</h2>
+    <div class="info-box">
+      <b>LOCAL MODE</b> - all processing happens on this computer.
+      No analytics, no telemetry, no external APIs, no cloud upload.
+    </div>
+    <p class="small">BOLs may contain customer information. This application never transmits BOL data anywhere.
+    Uploaded images are processed in memory and not saved (unless you enable saving in Settings).</p>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener("DOMContentLoaded", async () => {
+  try {
+    const stats = await API.get("/api/stats");
+    document.getElementById("stat-tests").textContent = stats.total_tests;
+    document.getElementById("stat-avg").textContent = stats.average_score + "%";
+    document.getElementById("stat-mastered").textContent = stats.codes_mastered;
+    document.getElementById("stat-weak").textContent = stats.codes_needing_practice;
+    const recent = document.getElementById("recent-wrong");
+    if (stats.recent_wrong && stats.recent_wrong.length) {
+      recent.innerHTML = stats.recent_wrong.map(w =>
+        `<div class="row"><span class="code-chip">${esc(w.code)}</span>
+         <span class="small">wrong: ${w.wrong} · accuracy: ${w.accuracy}%</span></div>`).join("");
+    } else {
+      recent.innerHTML = '<span class="small">No wrong answers recorded yet. Take a mock test to get started.</span>';
+    }
+  } catch (e) { console.error(e); }
+
+  try {
+    const mcodes = await API.get("/api/mcodes");
+    document.getElementById("stat-codes").textContent = mcodes.count;
+  } catch (e) { console.error(e); }
+
+  try {
+    const ollama = await API.get("/api/ollama/status");
+    const el = document.getElementById("stat-ollama");
+    if (ollama.available) {
+      el.textContent = "ONLINE";
+      el.style.color = "var(--green)";
+      if (ollama.vision_model) el.title = "Vision model: " + ollama.vision_model;
+    } else {
+      el.textContent = "OFFLINE";
+      el.style.color = "var(--muted)";
+    }
+  } catch (e) { console.error(e); }
+});
+</script>
+{% endblock %}

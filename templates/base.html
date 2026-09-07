@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}R+L BOL / Tenet Assistant{% endblock %}</title>
+  <link rel="stylesheet" href="/static/css/styles.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='14' fill='%23142a4a'/><text x='50' y='68' font-size='52' text-anchor='middle' fill='%23ffffff' font-family='Arial' font-weight='bold'>R</text></svg>">
+</head>
+<body data-page="{{ page }}">
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-logo">RL</span>
+      <span class="brand-title">R+L BOL / TENET ASSISTANT</span>
+      <span class="badge badge-green" id="local-mode-badge" title="All processing happens on this computer. No cloud upload.">LOCAL MODE</span>
+    </div>
+    <nav class="nav">
+      <a href="/" data-nav="index">DASHBOARD</a>
+      <a href="/assistant" data-nav="assistant">BOL ASSISTANT</a>
+      <a href="/manual" data-nav="manual">MANUAL ENTRY</a>
+      <a href="/search" data-nav="search">M-CODE SEARCH</a>
+      <a href="/mock-test" data-nav="mock-test">MOCK TEST</a>
+      <a href="/master" data-nav="master">M-CODE MASTER</a>
+      <a href="/history" data-nav="history">HISTORY</a>
+      <a href="/settings" data-nav="settings">SETTINGS</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="footer">
+    <span>LOCAL MODE - runs entirely on this computer</span>
+    <span class="dot">&bull;</span>
+    <span>Advisory / training assistant - does not enter data into production systems</span>
+    <span class="dot">&bull;</span>
+    <span>Accuracy &gt; Automation &gt; Appearance</span>
+  </footer>
+
+  <script src="/static/js/app.js"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

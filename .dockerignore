@@ -1,0 +1,9 @@
+.git
+.pytest_cache
+__pycache__
+database/app.db
+uploads
+audit_report.json
+task_plan.md
+findings.md
+progress.md

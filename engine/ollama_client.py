@@ -19,6 +19,7 @@ from typing import Dict, List, Optional
 import requests
 
 DEFAULT_OLLAMA_URL = "http://127.0.0.1:11434"
+DEFAULT_GEMINI_MODEL = "gemini-2.5-flash"
 VISION_PATTERNS = [
     re.compile(r"qwen.*vl", re.IGNORECASE),
     re.compile(r"llava", re.IGNORECASE),
@@ -139,6 +140,37 @@ def extract_bol_from_image(
         return {"success": False, "data": None, "error": f"Ollama request failed: {exc}"}
     except Exception as exc:  # noqa: BLE001 - degrade gracefully offline
         return {"success": False, "data": None, "error": f"Image processing failed: {exc}"}
+
+
+def extract_bol_with_gemini(api_key: str, image_bytes: bytes, model: str = DEFAULT_GEMINI_MODEL, timeout: float = 120.0) -> Dict[str, object]:
+    """Extract BOL text through Gemini without giving it M-Code authority."""
+    if not api_key:
+        return {"success": False, "data": None, "error": "GEMINI_API_KEY is not configured."}
+    try:
+        image = _preprocess_image(image_bytes)
+        payload = {
+            "contents": [{"parts": [
+                {"text": EXTRACTION_PROMPT},
+                {"inline_data": {"mime_type": "image/jpeg", "data": base64.b64encode(image).decode("ascii")}},
+            ]}],
+            "generationConfig": {"temperature": 0, "responseMimeType": "application/json"},
+        }
+        response = requests.post(
+            f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent",
+            params={"key": api_key}, json=payload, timeout=timeout,
+        )
+        if response.status_code != 200:
+            return {"success": False, "data": None, "error": f"Gemini returned HTTP {response.status_code}: {response.text[:300]}"}
+        body = response.json()
+        raw = body["candidates"][0]["content"]["parts"][0].get("text", "")
+        data = _parse_json_response(raw)
+        if data is None:
+            return {"success": False, "data": None, "error": "Gemini did not return valid extraction JSON."}
+        return {"success": True, "data": data, "error": None}
+    except requests.RequestException as exc:
+        return {"success": False, "data": None, "error": f"Gemini request failed: {exc}"}
+    except (KeyError, IndexError, TypeError, ValueError) as exc:
+        return {"success": False, "data": None, "error": f"Gemini response was not usable: {exc}"}
 
 
 def _parse_json_response(raw: str) -> Optional[Dict[str, object]]:

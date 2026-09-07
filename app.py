@@ -298,7 +298,30 @@ async def api_analyze_image(file: UploadFile = File(...)):
         save_history("image", f"PDF: {filename}", result)
         return JSONResponse(result)
 
-    # Image path.
+    # Image path. Prefer hosted Gemini on Vercel; fall back to local Ollama.
+    gemini_key = os.environ.get("GEMINI_API_KEY", "").strip()
+    if gemini_key:
+        extraction = ollama_client.extract_bol_with_gemini(
+            gemini_key, raw, os.environ.get("GEMINI_MODEL", ollama_client.DEFAULT_GEMINI_MODEL)
+        )
+        if not extraction["success"]:
+            raise HTTPException(status_code=502, detail=extraction["error"])
+        extracted = extraction["data"]
+        fields = dict(extracted)
+        if isinstance(fields.get("contacts"), list) and not fields.get("contact_information"):
+            fields["contact_information"] = "\n".join(str(v) for v in fields["contacts"])
+        if isinstance(fields.get("raw_text"), list) and not fields.get("raw_text_text"):
+            fields["raw_text_text"] = "\n".join(str(v) for v in fields["raw_text"])
+        lines = bol_parser.lines_from_fields(fields)
+        result = run_pipeline(lines, "image", f"Gemini extraction: {filename}")
+        result["extracted"] = extracted
+        result["ollama"] = None
+        result["vision_model"] = os.environ.get("GEMINI_MODEL", ollama_client.DEFAULT_GEMINI_MODEL)
+        result["vision_provider"] = "gemini"
+        save_history("image", f"Gemini extraction: {filename}", result)
+        return JSONResponse(result)
+
+    # Local image path.
     status = ollama_client.ollama_status(db.get_setting("ollama_url", ollama_client.DEFAULT_OLLAMA_URL))
     if not status["available"]:
         raise HTTPException(

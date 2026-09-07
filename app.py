@@ -439,7 +439,7 @@ def api_ollama_status():
 def api_mock_questions(
     mode: str = Query(default="practice", max_length=30),
     category: str = Query(default="All Categories", max_length=30),
-    count: int = Query(default=10, ge=1, le=500),
+    count: int = Query(default=10, ge=0, le=500),
 ):
     return {"questions": _build_mock_questions(mode, category, count)}
 

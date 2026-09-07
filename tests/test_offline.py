@@ -70,6 +70,8 @@ def test_offline_core(offline_client):
     questions=client.get('/api/mock/questions',params={'count':500}).json()['questions']
     authoritative={c['code']:c for c in codes['codes']}
     assert len(questions)==len(authoritative)
+    all_questions=client.get('/api/mock/questions',params={'count':0}).json()['questions']
+    assert len(all_questions)==len(authoritative)
     for question in questions:
         assert question['meaning']==authoritative[question['code']]['meaning']
         assert question['prompt']==question['meaning'].upper()

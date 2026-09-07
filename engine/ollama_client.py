@@ -19,7 +19,7 @@ from typing import Dict, List, Optional
 import requests
 
 DEFAULT_OLLAMA_URL = "http://127.0.0.1:11434"
-DEFAULT_GEMINI_MODEL = "gemini-2.5-flash"
+DEFAULT_GEMINI_MODEL = "gemini-3.6-flash"
 VISION_PATTERNS = [
     re.compile(r"qwen.*vl", re.IGNORECASE),
     re.compile(r"llava", re.IGNORECASE),

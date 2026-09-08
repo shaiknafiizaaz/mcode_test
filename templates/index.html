@@ -84,8 +84,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   try {
     const ollama = await API.get("/api/ollama/status");
     const el = document.getElementById("stat-ollama");
-    if (ollama.available) {
-      el.textContent = "ONLINE";
+      if (ollama.experiential_configured || ollama.gemini_configured || ollama.available) {
+        el.textContent = ollama.experiential_configured ? "CLOUD + FALLBACK" : (ollama.gemini_configured ? "CLOUD" : "ONLINE");
       el.style.color = "var(--green)";
       if (ollama.vision_model) el.title = "Vision model: " + ollama.vision_model;
     } else {

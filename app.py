@@ -298,20 +298,27 @@ async def api_analyze_image(file: UploadFile = File(...)):
         save_history("image", f"PDF: {filename}", result)
         return JSONResponse(result)
 
-    # Select a configured hosted provider before using local Ollama.
+    # Try configured providers in order; a transport/rate/access failure moves
+    # to the next available provider so mobile use keeps working.
+    attempts = []
     experiential_key = experiential_client.api_key()
+    if experiential_key:
+        attempts.append(("experiential", "Experiential Labs", experiential_client.model_name(),
+                         lambda: experiential_client.extract_bol(experiential_key, raw, experiential_client.model_name())))
     gemini_key = os.environ.get("GEMINI_API_KEY", "").strip()
-    if experiential_key or gemini_key:
-        if experiential_key:
-            provider, label = "experiential", "Experiential Labs"
-            model = experiential_client.model_name()
-            extraction = experiential_client.extract_bol(experiential_key, raw, model)
-        else:
-            provider, label = "gemini", "Gemini"
-            model = os.environ.get("GEMINI_MODEL", ollama_client.DEFAULT_GEMINI_MODEL)
-            extraction = ollama_client.extract_bol_with_gemini(gemini_key, raw, model)
-        if not extraction["success"]:
-            raise HTTPException(status_code=502, detail=extraction["error"])
+    if gemini_key:
+        gemini_model = os.environ.get("GEMINI_MODEL", ollama_client.DEFAULT_GEMINI_MODEL)
+        attempts.append(("gemini", "Gemini", gemini_model,
+                         lambda: ollama_client.extract_bol_with_gemini(gemini_key, raw, gemini_model)))
+    cloud_errors = []
+    for provider, label, model, call in attempts:
+        extraction = call()
+        if extraction["success"]:
+            break
+        cloud_errors.append(f"{label}: {extraction['error']}")
+    else:
+        extraction = None
+    if extraction and extraction["success"]:
         extracted = extraction["data"]
         fields = _extraction_to_fields(extracted)
         lines = bol_parser.lines_from_fields(fields)
@@ -334,10 +341,11 @@ async def api_analyze_image(file: UploadFile = File(...)):
                 "Ollama is not running, so local image extraction is unavailable. "
                 "Start Ollama (ollama serve) or use the Paste Text / Manual Entry tabs - "
                 "the core M-Code system works fully offline. "
-                f"({status.get('error')})"
+                f"({'; '.join(cloud_errors + [status.get('error')])})"
             ),
         )
-    model = ollama_client.pick_vision_model(status["models"], db.get_setting("vision_model", ""))
+    preferred_model = db.get_setting("vision_model", "")
+    model = ollama_client.pick_vision_model(status["models"], preferred_model)
     if not model:
         raise HTTPException(
             status_code=503,
@@ -351,7 +359,7 @@ async def api_analyze_image(file: UploadFile = File(...)):
         db.get_setting("ollama_url", ollama_client.DEFAULT_OLLAMA_URL), model, raw
     )
     if not extraction["success"]:
-        raise HTTPException(status_code=502, detail=extraction["error"])
+        raise HTTPException(status_code=502, detail="; ".join(cloud_errors + [extraction["error"]]))
 
     data = extraction["data"]
     fields = _extraction_to_fields(data)

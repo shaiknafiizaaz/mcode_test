@@ -116,10 +116,10 @@ document.addEventListener("DOMContentLoaded", () => {
   API.get("/api/ollama/status").then((s) => {
     if (s.experiential_configured) {
       statusEl.innerHTML = `<span class="badge badge-green">EXPERIENTIAL LABS CONFIGURED</span>
-        <span class="small">${esc(s.experiential_model)} — uploaded images are sent to Experiential Labs for extraction.</span>`;
+        <span class="small">${esc(s.experiential_model)} — fallback continues to the next configured provider if this is unavailable.</span>`;
     } else if (s.gemini_configured) {
       statusEl.innerHTML = `<span class="badge badge-green">GEMINI CONFIGURED</span>
-        <span class="small">${esc(s.gemini_model)} — uploaded images are sent to Gemini for extraction.</span>`;
+        <span class="small">${esc(s.gemini_model)} — used when Experiential Labs is unavailable.</span>`;
     } else if (s.available && s.vision_model) {
       statusEl.innerHTML = `<span class="badge badge-green">OLLAMA ONLINE</span>
         <span class="small">Vision model: ${esc(s.vision_model)}</span>`;

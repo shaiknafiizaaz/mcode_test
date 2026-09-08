@@ -103,11 +103,11 @@ def test_luna_routing_and_deterministic_analysis(client, monkeypatch, image_byte
     assert "secret" not in str(status)
 
 
-def test_no_silent_fallback_on_provider_failure(client, monkeypatch, image_bytes):
+def test_provider_failure_falls_through_to_local_when_available(client, monkeypatch, image_bytes):
     monkeypatch.setenv("gpt_expLab_api", "secret")
     monkeypatch.setattr(provider, "extract_bol", lambda *a: {"success": False, "data": None, "error": "Experiential Labs returned HTTP 401."})
     response = client.post("/api/analyze/image", files={"file": ("bol.png", image_bytes, "image/png")})
-    assert response.status_code == 502
+    assert response.status_code == 503
     assert "401" in response.json()["detail"]
 
 

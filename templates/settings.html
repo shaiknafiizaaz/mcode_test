@@ -11,9 +11,9 @@
     <label>Ollama URL</label>
     <input type="url" id="s-ollama_url" value="http://127.0.0.1:11434">
     <div class="hint">Default local endpoint. Only reachable on this machine.</div>
-    <label>Vision model (auto-detect if empty)</label>
-    <input type="text" id="s-vision_model" placeholder="e.g. qwen2.5vl:7b (leave blank for auto)">
-    <div class="hint">Used only for image extraction - never for deciding M-Codes. Install with: ollama pull qwen2.5vl</div>
+    <label>Local Ollama model</label>
+    <select id="s-vision_model"><option value="">Auto-detect vision model</option></select>
+    <div class="hint">Choose any installed model; vision-capable models are recommended. Install with: ollama pull qwen2.5vl</div>
     <label><input type="checkbox" id="s-save_images" style="width:auto"> Save uploaded BOL images to the uploads/ folder</label>
     <div class="hint">Default is OFF for privacy - images are processed in memory and discarded.</div>
     <div class="row mt">
@@ -43,10 +43,16 @@
 <script>
 document.addEventListener("DOMContentLoaded", async () => {
   const statusEl = document.getElementById("ollama-status");
+  let savedVisionModel = "";
 
   async function refreshOllama() {
     try {
       const s = await API.get("/api/ollama/status");
+      const modelSelect = document.getElementById("s-vision_model");
+      const selected = savedVisionModel;
+      modelSelect.innerHTML = `<option value="">Auto-detect vision model</option>` +
+        (s.models || []).map(m => `<option value="${esc(m)}">${esc(m)}</option>`).join("");
+      modelSelect.value = selected;
       if (s.experiential_configured || s.gemini_configured) {
         const label = s.experiential_configured ? "EXPERIENTIAL LABS" : "GEMINI";
         const model = s.experiential_configured ? s.experiential_model : s.gemini_model;
@@ -69,7 +75,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     const data = await API.get("/api/settings");
     const s = data.settings || {};
     document.getElementById("s-ollama_url").value = s.ollama_url || "http://127.0.0.1:11434";
-    document.getElementById("s-vision_model").value = s.vision_model || "";
+    savedVisionModel = s.vision_model || "";
+    document.getElementById("s-vision_model").value = savedVisionModel;
     document.getElementById("s-save_images").checked = !!s.save_images;
   } catch (e) { console.error(e); }
   refreshOllama();

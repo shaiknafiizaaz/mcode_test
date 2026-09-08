@@ -17,7 +17,7 @@ ROOT = Path(__file__).resolve().parents[1]
 @pytest.fixture
 def offline_client(monkeypatch, tmp_path):
     for key in list(os.environ):
-        if 'API_KEY' in key or key.endswith('_TOKEN'):
+        if 'API_KEY' in key or key.endswith('_TOKEN') or key.lower() == 'gpt_explab_api':
             monkeypatch.delenv(key, raising=False)
     original_connect = socket.socket.connect
     def denied(self, address):
@@ -108,7 +108,7 @@ socket.socket.connect_ex = denied
 socket.create_connection = denied
 uvicorn.run(app, host='127.0.0.1', port=PORT, log_level='info')
 '''.replace('PORT',str(port))
-    env={k:v for k,v in os.environ.items() if 'API_KEY' not in k and not k.endswith('_TOKEN')}
+    env={k:v for k,v in os.environ.items() if 'API_KEY' not in k and not k.endswith('_TOKEN') and k.lower() != 'gpt_explab_api'}
     env['TENET_DB_PATH']=str(tmp_path/'server.db')
     log=tmp_path/'server.log'
     with log.open('w') as output:

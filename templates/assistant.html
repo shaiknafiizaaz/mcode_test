@@ -2,7 +2,7 @@
 {% block title %}BOL Assistant - R+L BOL / Tenet Assistant{% endblock %}
 {% block content %}
 <h1 class="page-title">BOL ASSISTANT</h1>
-<p class="page-sub">Paste BOL text or upload a screenshot. Extraction is local; all M-Codes come from the deterministic rule engine - never guessed.</p>
+<p class="page-sub">Paste BOL text or upload a screenshot. All M-Codes come from the deterministic rule engine - never guessed.</p>
 
 <div class="tabs">
   <div class="tab active" data-tab="paste">PASTE BOL TEXT</div>
@@ -40,7 +40,7 @@ PHONE: 555-1234"></textarea>
 <div class="tab-panel" id="panel-image">
   <div class="card">
     <h2>UPLOAD BOL IMAGE / SCREENSHOT</h2>
-    <p class="small mb">PNG, JPG, JPEG, WEBP or PDF. Gemini cloud vision is used when configured; Ollama is supported as a local fallback. The vision model only <b>extracts wording</b> - it never decides M-Codes.</p>
+    <p class="small mb">PNG, JPG, JPEG, WEBP or PDF. Images use Experiential Labs when configured, then Gemini, otherwise local Ollama. The vision model only <b>extracts wording</b> - it never decides M-Codes.</p>
     <div class="row mb" id="ollama-status"><span class="small">Checking Ollama...</span></div>
     <input type="file" id="image-file" accept="image/*,.pdf" capture="environment">
     <div class="row mt">
@@ -114,9 +114,12 @@ document.addEventListener("DOMContentLoaded", () => {
   // Vision provider status
   const statusEl = document.getElementById("ollama-status");
   API.get("/api/ollama/status").then((s) => {
-    if (s.gemini_configured) {
-      statusEl.innerHTML = `<span class="badge badge-green">GEMINI ONLINE</span>
-        <span class="small">Cloud vision model: ${esc(s.gemini_model)}</span>`;
+    if (s.experiential_configured) {
+      statusEl.innerHTML = `<span class="badge badge-green">EXPERIENTIAL LABS CONFIGURED</span>
+        <span class="small">${esc(s.experiential_model)} — uploaded images are sent to Experiential Labs for extraction.</span>`;
+    } else if (s.gemini_configured) {
+      statusEl.innerHTML = `<span class="badge badge-green">GEMINI CONFIGURED</span>
+        <span class="small">${esc(s.gemini_model)} — uploaded images are sent to Gemini for extraction.</span>`;
     } else if (s.available && s.vision_model) {
       statusEl.innerHTML = `<span class="badge badge-green">OLLAMA ONLINE</span>
         <span class="small">Vision model: ${esc(s.vision_model)}</span>`;
@@ -125,7 +128,7 @@ document.addEventListener("DOMContentLoaded", () => {
         <span class="small">Run: ollama pull qwen2.5vl</span>`;
     } else {
       statusEl.innerHTML = `<span class="badge badge-gray">OLLAMA OFFLINE</span>
-        <span class="small">Configure Gemini for hosted camera extraction, or use Paste Text / Manual Entry. Core M-Code system works fully offline.</span>`;
+        <span class="small">Configure Experiential Labs or Gemini for hosted camera extraction, or use Paste Text / Manual Entry. Core M-Code system works fully offline.</span>`;
     }
   }).catch(() => {
     statusEl.innerHTML = `<span class="badge badge-gray">OLLAMA OFFLINE</span>`;

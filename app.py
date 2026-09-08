@@ -1,8 +1,8 @@
 """R+L Carriers BOL / Tenet-EBS Job Assistant - FastAPI application.
 
-LOCAL-FIRST: no external APIs, no telemetry, no cloud storage. The core
-M-Code system works fully offline; Ollama (if available) is used ONLY
-for image extraction and is never the authority for M-Codes.
+LOCAL-FIRST: the core M-Code system works fully offline. Image extraction
+uses configured Experiential Labs/Gemini credentials or local Ollama;
+the vision model is never the authority for M-Codes.
 
 Run with:  python -m uvicorn app:app --host 127.0.0.1 --port 8000
 or double-click start.bat
@@ -21,7 +21,7 @@ from pydantic import BaseModel, Field
 from starlette.requests import Request
 
 import database.db as db
-from engine import bol_parser, mcode_engine, ollama_client
+from engine import bol_parser, mcode_engine, ollama_client, experiential_client
 from engine.rules_loader import code_category, load_mcodes, load_rules
 from engine.validation import build_result
 
@@ -271,9 +271,9 @@ def save_history(source_type: str, preview: str, result: Dict[str, Any]) -> None
 
 @app.post("/api/analyze/image")
 async def api_analyze_image(file: UploadFile = File(...)):
-    """Upload a BOL image (or PDF) and extract + analyze locally.
+    """Upload a BOL image (or PDF) and extract + analyze.
 
-    Extraction is done by the local Ollama vision model if available;
+    Extraction uses the configured hosted provider or local Ollama;
     the deterministic rule engine decides all M-Codes.
     """
     filename = file.filename or "upload"
@@ -298,27 +298,31 @@ async def api_analyze_image(file: UploadFile = File(...)):
         save_history("image", f"PDF: {filename}", result)
         return JSONResponse(result)
 
-    # Image path. Prefer hosted Gemini on Vercel; fall back to local Ollama.
+    # Select a configured hosted provider before using local Ollama.
+    experiential_key = experiential_client.api_key()
     gemini_key = os.environ.get("GEMINI_API_KEY", "").strip()
-    if gemini_key:
-        extraction = ollama_client.extract_bol_with_gemini(
-            gemini_key, raw, os.environ.get("GEMINI_MODEL", ollama_client.DEFAULT_GEMINI_MODEL)
-        )
+    if experiential_key or gemini_key:
+        if experiential_key:
+            provider, label = "experiential", "Experiential Labs"
+            model = experiential_client.model_name()
+            extraction = experiential_client.extract_bol(experiential_key, raw, model)
+        else:
+            provider, label = "gemini", "Gemini"
+            model = os.environ.get("GEMINI_MODEL", ollama_client.DEFAULT_GEMINI_MODEL)
+            extraction = ollama_client.extract_bol_with_gemini(gemini_key, raw, model)
         if not extraction["success"]:
             raise HTTPException(status_code=502, detail=extraction["error"])
         extracted = extraction["data"]
-        fields = dict(extracted)
-        if isinstance(fields.get("contacts"), list) and not fields.get("contact_information"):
-            fields["contact_information"] = "\n".join(str(v) for v in fields["contacts"])
-        if isinstance(fields.get("raw_text"), list) and not fields.get("raw_text_text"):
-            fields["raw_text_text"] = "\n".join(str(v) for v in fields["raw_text"])
+        fields = _extraction_to_fields(extracted)
         lines = bol_parser.lines_from_fields(fields)
-        result = run_pipeline(lines, "image", f"Gemini extraction: {filename}")
+        result = run_pipeline(lines, "image", f"{label} extraction: {filename}")
         result["extracted"] = extracted
+        result["fields"] = fields
+        result["confidence"] = _confidence_summary(extracted)
         result["ollama"] = None
-        result["vision_model"] = os.environ.get("GEMINI_MODEL", ollama_client.DEFAULT_GEMINI_MODEL)
-        result["vision_provider"] = "gemini"
-        save_history("image", f"Gemini extraction: {filename}", result)
+        result["vision_model"] = model
+        result["vision_provider"] = provider
+        save_history("image", f"{label} extraction: {filename}", result)
         return JSONResponse(result)
 
     # Local image path.
@@ -428,6 +432,8 @@ def api_ollama_status():
         "error": status["error"],
         "gemini_configured": bool(os.environ.get("GEMINI_API_KEY", "").strip()),
         "gemini_model": os.environ.get("GEMINI_MODEL", ollama_client.DEFAULT_GEMINI_MODEL),
+        "experiential_configured": bool(experiential_client.api_key()),
+        "experiential_model": experiential_client.model_name(),
     }
 
 

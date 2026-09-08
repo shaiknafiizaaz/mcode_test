@@ -6,7 +6,7 @@
 
 <div class="grid grid-2">
   <div class="card">
-    <h2>LOCAL AI (OLLAMA)</h2>
+    <h2>IMAGE EXTRACTION</h2>
     <div id="ollama-status" class="mb"><span class="small">Checking...</span></div>
     <label>Ollama URL</label>
     <input type="url" id="s-ollama_url" value="http://127.0.0.1:11434">
@@ -25,12 +25,11 @@
   <div class="card">
     <h2>PRIVACY &amp; SERVER</h2>
     <div class="info-box">
-      <b>LOCAL MODE</b><br>
-      All processing happens on this computer: no analytics, no telemetry,
-      no external APIs, no cloud OCR, no cloud database, no cloud upload.
+      Text analysis and M-Code decisions run on the app server.
+      When Experiential Labs or Gemini is configured, uploaded images are sent
+      to that provider for text extraction. Otherwise image extraction uses Ollama.
     </div>
-    <p class="small">BOLs may contain customer information. If any future feature would transmit
-    BOL data externally, it will require explicit user action and a clear warning first.</p>
+    <p class="small">The image-upload screen shows the configured provider before you upload.</p>
     <h3>Server</h3>
     <p class="small">Host: <span class="code-chip">127.0.0.1</span> · Port: <span class="code-chip">8000</span>
     (configured in config.json; start.bat uses 127.0.0.1:8000)</p>
@@ -48,7 +47,12 @@ document.addEventListener("DOMContentLoaded", async () => {
   async function refreshOllama() {
     try {
       const s = await API.get("/api/ollama/status");
-      if (s.available) {
+      if (s.experiential_configured || s.gemini_configured) {
+        const label = s.experiential_configured ? "EXPERIENTIAL LABS" : "GEMINI";
+        const model = s.experiential_configured ? s.experiential_model : s.gemini_model;
+        statusEl.innerHTML = `<span class="badge badge-green">${label} CONFIGURED</span>
+          <span class="small">Cloud vision model: ${esc(model)}. Credentials are verified when you upload an image.</span>`;
+      } else if (s.available) {
         statusEl.innerHTML = `<span class="badge badge-green">OLLAMA ONLINE</span>
           <span class="small">Models: ${esc((s.models || []).join(", ") || "(none)")}</span>
           <span class="small">Vision: ${esc(s.vision_model || "none installed")}</span>`;

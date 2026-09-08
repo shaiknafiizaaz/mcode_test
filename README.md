@@ -1,6 +1,6 @@
 # R+L Carriers BOL / Tenet-EBS Job Assistant
 
-A **100% local** Windows application that helps you learn and apply R+L
+A **local-first** application that helps you learn and apply R+L
 Carriers M-Codes while processing Bills of Lading (BOL) in Tenet/EBS.
 
 **Accuracy > Automation > Appearance.** The application **never invents an
@@ -15,7 +15,8 @@ needed, checks Ollama, starts the FastAPI server and opens:
 
     http://127.0.0.1:8000
 
-No cloud accounts. No API keys. No telemetry. Local processing only.
+Text analysis works without cloud accounts or API keys. Image extraction can
+use local Ollama or a configured cloud provider.
 
 ## Internet / phone access
 
@@ -121,9 +122,10 @@ python -m pytest tests/ -v
 
 ## Privacy
 
-LOCAL MODE by default: no analytics, no telemetry, no external APIs, no
-cloud storage. Uploaded BOL images are processed in memory and are not
-saved unless you enable "save images" in Settings.
+Core text analysis and M-Code decisions run on the app server. When Experiential
+Labs or Gemini is configured, uploaded images are transmitted to that provider
+for extraction. Otherwise image extraction uses Ollama. Review the configured
+provider on the upload screen before sending a document.
 ## Rule integrity and completion audit
 
 Run `python audit.py` to validate the authoritative dataset, run every automated
@@ -167,3 +169,20 @@ reset between instances. Use an external database or the Docker/VPS option for
 persistent history. Vercel also cannot run local Ollama; text, manual analysis
 and the deterministic rule engine work without it, while image OCR requires a
 separately hosted vision endpoint.
+
+### Experiential Labs image extraction
+
+Set the production environment variable `gpt_expLab_api` to your Experiential
+Labs API key. The code also accepts `EXPLABS_API_KEY` if `gpt_expLab_api` is
+empty. The default model is `gpt-5.6-luna`; optional `EXPLABS_MODEL` overrides it.
+Requests use `https://api.experientiallabs.ai/v1/chat/completions` with Bearer
+authentication. Keys remain on the server and are never returned by the status API.
+
+Deploy this code and redeploy after changing production environment variables.
+Image extraction selects Experiential Labs first when its key is configured,
+then Gemini (`GEMINI_API_KEY`) when configured, otherwise Ollama. A failed cloud
+request returns an error instead of silently sending the image to another provider.
+The UI's "configured" status only checks that a key is set; upload an image to
+verify credentials, model access and image support end to end.
+
+Provider docs: https://platform.experientiallabs.ai/models/gpt-5.6-luna

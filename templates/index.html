@@ -48,11 +48,11 @@
   <div class="card">
     <h2>Privacy</h2>
     <div class="info-box">
-      <b>LOCAL MODE</b> - all processing happens on this computer.
-      No analytics, no telemetry, no external APIs, no cloud upload.
+      M-Code decisions run on the app server using deterministic rules.
+      Image extraction uses Experiential Labs or Gemini when configured, otherwise local Ollama.
     </div>
-    <p class="small">BOLs may contain customer information. This application never transmits BOL data anywhere.
-    Uploaded images are processed in memory and not saved (unless you enable saving in Settings).</p>
+    <p class="small">Cloud extraction sends uploaded images to the configured provider.
+    Review the provider shown on the image-upload screen before uploading.</p>
   </div>
 </div>
 {% endblock %}
